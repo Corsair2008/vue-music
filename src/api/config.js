@@ -1,5 +1,4 @@
 export const commonParams = {
-  _: 1569764654441,
   g_tk: 5381,
   inCharset: 'utf-8',
   outCharset: 'utf-8',
@@ -8,7 +7,7 @@ export const commonParams = {
 }
 
 export const opt = {
-  param: 'jsonCallback'
+  param: 'jsonpCallback'
 }
 
 export const ERR_OK = 0
