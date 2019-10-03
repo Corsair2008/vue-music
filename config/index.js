@@ -11,9 +11,13 @@ module.exports = {
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
     proxyTable: {
-      '/api/getDiscList': {
-        target: 'https://c.y.qq.com/splcloud/fcgi-bin/fcg_get_diss_by_tag.fcg',
+      '/api': {
+        target: 'https://c.y.qq.com',
+        secure: true,
         changeOrigin: true,
+        pathRewrite: {
+          '^/api/getDiscList': '/splcloud/fcgi-bin/fcg_get_diss_by_tag.fcg'
+        },
         headers: {
           Origin: 'https://y.qq.com',
           Referer: 'https://y.qq.com/portal/playlist.html'
