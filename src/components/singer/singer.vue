@@ -5,8 +5,19 @@
 </template>
 
 <script type="text/ecmascript-6">
+import { getSingerList } from '@/api/singer.js'
 export default {
-  name: 'Singer'
+  name: 'Singer',
+  mounted () {
+    this._getSingerList()
+  },
+  methods: {
+    _getSingerList () {
+      getSingerList().then((res) => {
+        console.log(res)
+      })
+    }
+  }
 }
 </script>
 

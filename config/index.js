@@ -22,6 +22,18 @@ module.exports = {
           Origin: 'https://y.qq.com',
           Referer: 'https://y.qq.com/portal/playlist.html'
         }
+      },
+      '/getSingerList': {
+        target: 'https://u.y.qq.com/cgi-bin/musicu.fcg',
+        secure: true,
+        changeOrigin: true,
+        pathRewrite: {
+          '^/getSingerList': ''
+        },
+        headers: {
+          Origin: 'https://y.qq.com',
+          Referer: 'https://y.qq.com/portal/singer_list.html'
+        }
       }
     },
 
