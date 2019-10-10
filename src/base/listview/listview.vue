@@ -1,7 +1,12 @@
 <template>
-  <scroll class="listview" :data="data">
+  <scroll class="listview"
+          :data="data"
+          :listenScroll="listenScroll"
+          ref='listview'
+          @scroll="scroll"
+  >
     <ul>
-      <li v-for="group in data" :key="group.title" class="list-group">
+      <li v-for="group in data" :key="group.title" class="list-group" ref='listGroup'>
         <h2 class="list-group-title">{{group.title}}</h2>
         <ul>
           <li v-for="item in group.items" :key="item.id" class="list-group-item">
@@ -11,9 +16,15 @@
         </ul>
       </li>
     </ul>
-    <div class="list-shortcut">
+    <div class="list-shortcut" @touchstart="onShortcutStart" @touchmove.stop.prevent="onShortcutMove">
       <ul>
-        <li v-for="(item, index) in shortcutList" :key="index" class="item">{{item}}</li>
+        <li v-for="(item, index) in shortcutList"
+            :key="index" :data-index="index"
+            class="item"
+            :class="{current : currentIndex === index}"
+        >
+          {{item}}
+        </li>
       </ul>
     </div>
   </scroll>
@@ -21,8 +32,23 @@
 
 <script type="text/ecmascript-6">
 import Scroll from '../scroll/scroll'
+import { getData } from 'common/js/dom'
+
+const ANCHOR_HEIGHT = 18
+
 export default {
   name: 'Listview',
+  created () {
+    this.touch = {}
+    this.listenScroll = true
+    this.listHeight = []
+  },
+  data () {
+    return {
+      scrollY: -1,
+      currentIndex: 0
+    }
+  },
   components: {
     Scroll
   },
@@ -37,6 +63,60 @@ export default {
       return this.data.map((group) => {
         return group.title.substring(0, 1)
       })
+    }
+  },
+  methods: {
+    onShortcutStart (e) {
+      let anchorIndex = getData(e.target, 'index')
+      this.touch.y1 = e.touches[0].pageY
+      this.touch.anchorIndex = parseInt(anchorIndex)
+      this._scroll(anchorIndex)
+    },
+    onShortcutMove (e) {
+      this.touch.y2 = e.touches[0].pageY
+      let delta = Math.floor((this.touch.y2 - this.touch.y1) / ANCHOR_HEIGHT)
+      let anchorIndex = this.touch.anchorIndex + delta
+      this._scroll(anchorIndex)
+    },
+    scroll (pos) {
+      this.scrollY = pos.y
+    },
+    _scroll (index) {
+      this.$refs.listview.scrollToElement(this.$refs.listGroup[index], 0)
+    },
+    _calculateHeight () {
+      this.listHeight = []
+      let list = this.$refs.listGroup
+      let height = 0
+      this.listHeight.push(height)
+      for (let i = 0; i < list.length; i++) {
+        let item = list[i]
+        height += item.clientHeight
+        this.listHeight.push(height)
+      }
+    }
+  },
+  watch: {
+    data () {
+      setTimeout(() => {
+        this._calculateHeight()
+      }, 20)
+    },
+    scrollY (newY) {
+      if (newY >= 0) {
+        this.currentIndex = 0
+        return
+      }
+      const listHeight = this.listHeight
+      for (let i = 0; i < listHeight.length; i++) {
+        let heightT = listHeight[i]
+        let heightB = listHeight[i + 1]
+        if (!heightB || (-newY >= heightT && -newY < heightB)) {
+          this.currentIndex = i
+          return
+        }
+      }
+      this.currentIndex = 0
     }
   }
 }
@@ -89,4 +169,6 @@ export default {
       line-height: 1
       color: $color-text-l
       font-size: $font-size-small
+      &.current
+        color: $color-theme
 </style>
