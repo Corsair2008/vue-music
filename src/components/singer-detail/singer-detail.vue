@@ -1,5 +1,5 @@
 <template>
-<transition name="slide">
+<transition appear name="slide">
   <div class="singer-detail"></div>
 </transition>
 </template>
