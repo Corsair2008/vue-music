@@ -19,7 +19,14 @@ export default new Router({
     }, {
       path: '/singer',
       name: 'Singer',
-      component: () => import('@/components/singer/singer')
+      component: () => import('@/components/singer/singer'),
+      children: [
+        {
+          path: ':id',
+          name: 'SingerDetail',
+          component: () => import('@/components/singer-detail/singer-detail')
+        }
+      ]
     }, {
       path: '/rank',
       name: 'Rank',
