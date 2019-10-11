@@ -27,14 +27,22 @@
         </li>
       </ul>
     </div>
+    <div class="list-fixed" ref="fixed" v-show="fixedTitle">
+      <div class="fixed-title">{{fixedTitle}}</div>
+    </div>
+    <div v-show="!data.length" class="loading-container">
+      <loading></loading>
+    </div>
   </scroll>
 </template>
 
 <script type="text/ecmascript-6">
 import Scroll from '../scroll/scroll'
 import { getData } from 'common/js/dom'
+import Loading from '@/base/loading/loading'
 
 const ANCHOR_HEIGHT = 18
+const TITLE_HEIGHT = 30
 
 export default {
   name: 'Listview',
@@ -46,11 +54,13 @@ export default {
   data () {
     return {
       scrollY: -1,
-      currentIndex: 0
+      currentIndex: 0,
+      diff: -1
     }
   },
   components: {
-    Scroll
+    Scroll,
+    Loading
   },
   props: {
     data: {
@@ -63,6 +73,12 @@ export default {
       return this.data.map((group) => {
         return group.title.substring(0, 1)
       })
+    },
+    fixedTitle () {
+      if (this.scrollY > 0) {
+        return ''
+      }
+      return this.data[this.currentIndex] ? this.data[this.currentIndex].title : ''
     }
   },
   methods: {
@@ -76,7 +92,9 @@ export default {
       this.touch.y2 = e.touches[0].pageY
       let delta = Math.floor((this.touch.y2 - this.touch.y1) / ANCHOR_HEIGHT)
       let anchorIndex = this.touch.anchorIndex + delta
-      this._scroll(anchorIndex)
+      if (anchorIndex >= 0 && anchorIndex < this.listHeight.length - 1) {
+        this._scroll(anchorIndex)
+      }
     },
     scroll (pos) {
       this.scrollY = pos.y
@@ -111,12 +129,21 @@ export default {
       for (let i = 0; i < listHeight.length; i++) {
         let heightT = listHeight[i]
         let heightB = listHeight[i + 1]
-        if (!heightB || (-newY >= heightT && -newY < heightB)) {
+        if (-newY >= heightT && -newY < heightB) {
           this.currentIndex = i
+          this.diff = heightB + newY
           return
         }
       }
-      this.currentIndex = 0
+      this.currentIndex = listHeight.length - 2
+    },
+    diff (newVal) {
+      let fixedTop = (newVal > 0 && newVal < TITLE_HEIGHT) ? newVal - TITLE_HEIGHT : 0
+      if (this.fixedTop === fixedTop) {
+        return
+      }
+      this.fixedTop = fixedTop
+      this.$refs.fixed.style.transform = `translate3d(0, ${fixedTop}px, 0)`
     }
   }
 }
@@ -152,23 +179,40 @@ export default {
           margin-left: 20px
           color: $color-text-l
           font-size: $font-size-medium
-  .list-shortcut
-    position: absolute
-    z-index: 30
-    right: 0
-    top: 50%
-    transform: translateY(-50%)
-    width: 20px
-    padding: 20px 0
-    border-radius: 10px
-    text-align: center
-    background: $color-background-d
-    font-family: Helvetica
-    .item
-      padding: 3px
-      line-height: 1
-      color: $color-text-l
-      font-size: $font-size-small
-      &.current
-        color: $color-theme
+    .list-shortcut
+      position: absolute
+      z-index: 30
+      right: 0
+      top: 50%
+      transform: translateY(-50%)
+      width: 20px
+      padding: 20px 0
+      border-radius: 10px
+      text-align: center
+      background: $color-background-d
+      font-family: Helvetica
+      .item
+        padding: 3px
+        line-height: 1
+        color: $color-text-l
+        font-size: $font-size-small
+        &.current
+          color: $color-theme
+    .list-fixed
+      position: absolute
+      top: 0
+      left: 0
+      width: 100%
+      .fixed-title
+        height: 30px
+        line-height: 30px
+        padding-left: 20px
+        font-size: $font-size-small
+        color: $color-text-l
+        background: $color-highlight-background
+    .loading-container
+      position: absolute
+      width: 100%
+      top: 50%
+      transform: translateY(-50%)
 </style>
