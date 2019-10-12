@@ -11,19 +11,19 @@ module.exports = {
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
     proxyTable: {
-      '/api': {
+      '/recommend': {
         target: 'https://c.y.qq.com',
         secure: true,
         changeOrigin: true,
         pathRewrite: {
-          '^/api/getDiscList': '/splcloud/fcgi-bin/fcg_get_diss_by_tag.fcg'
+          '^/recommend/getDiscList': '/splcloud/fcgi-bin/fcg_get_diss_by_tag.fcg'
         },
         headers: {
           Origin: 'https://y.qq.com',
           Referer: 'https://y.qq.com/portal/playlist.html'
         }
       },
-      '/getSingerList': {
+      '/singer': {
         target: 'https://u.y.qq.com/cgi-bin/musicu.fcg',
         secure: true,
         changeOrigin: true,
