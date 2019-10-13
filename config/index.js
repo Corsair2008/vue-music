@@ -28,11 +28,12 @@ module.exports = {
         secure: true,
         changeOrigin: true,
         pathRewrite: {
-          '^/getSingerList': ''
+          '^/singer/getSingerList': '',
+          '^/singer/songList': ''
         },
         headers: {
           Origin: 'https://y.qq.com',
-          Referer: 'https://y.qq.com/portal/singer_list.html'
+          Referer: 'https://y.qq.com/n/yqq/singer'
         }
       }
     },
