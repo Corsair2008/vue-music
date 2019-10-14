@@ -1,4 +1,5 @@
-import axios from 'axios'
+import { axiosRequest } from 'common/js/axiosRequest'
+import { ERR_OK } from '@/api/config'
 
 export default class Song {
   constructor ({id, mid, singer, name, album, duration, image, url}) {
@@ -36,26 +37,35 @@ function filterSinger (singer) {
   return ret.join('/')
 }
 
-export function getSongUrl (songMid) {
-  const url = '/singer/songList'
-
-  const data = {
-    playUrl: {
-      module: 'vkey.GetVkeyServer',
-      method: 'CgiGetVkey',
-      param: {
-        guid: (Math.random() + '').replace('0.', '').substring(0, 9),
-        songMid: songMid,
-        songtype: 0,
-        uin: '0',
-        loginflag: 1,
-        platfrom: '20'
-      }
+export function filterSongUrl (songmid) {
+  if (!songmid) {
+    return ''
+  }
+  getSongUrl(songmid).then((res) => {
+    console.log(res)
+    if (res.code === ERR_OK) {
+      this.param = res.data
     }
+  })
+  console.log(this)
+}
+
+function getSongUrl (songmid) {
+  let url = '/singer'
+  const module = 'vkey.GetVkeyServer'
+  const method = 'CgiGetVkey'
+  const param = {
+    guid: (Math.random() + '').replace('0.', '').substring(0, 9),
+    songmid: `["${songmid}"]`,
+    songtype: '[0]',
+    uin: 0,
+    loginflag: 1,
+    platfrom: '20'
   }
 
-  return axios.post(url, data).then(res => {
-    console.log(res)
-    return Promise.resolve(res.data)
+  return axiosRequest('get', url, module, method, param).then((res) => {
+    if (res.code === ERR_OK) {
+      return Promise.resolve(res.request)
+    }
   })
 }

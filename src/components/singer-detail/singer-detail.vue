@@ -7,8 +7,7 @@
 <script type="text/ecmascript-6">
 import { mapGetters } from 'vuex'
 import { getSongList } from '@/api/singer'
-import { ERR_OK } from '@/api/config'
-import { getSongUrl } from 'common/js/song'
+import { filterSongUrl } from 'common/js/song'
 export default {
   name: 'SingerDetail',
   data () {
@@ -24,14 +23,16 @@ export default {
   methods: {
     _getSingerSongList () {
       if (!this.singer.id) {
-        this.$router.push('/singer')
+        this._backToSingerPage()
         return
       }
       getSongList(this.singer.id).then((res) => {
-        if (res.code === ERR_OK && res.data) {
-          console.log(res.data)
-          this._normalizeSongList(res.data.songList)
+        if (this.singer.id !== res.singerMid) {
+          this._backToSingerPage()
+          return
         }
+        this.songList = res.songList
+        console.log(this.songList)
       })
     },
     _normalizeSongList (songList) {
@@ -40,13 +41,14 @@ export default {
       //   let {musicData} = song
       //   console.log(musicData)
       // })
+    },
+    _backToSingerPage () {
+      this.$router.push('/singer')
     }
   },
   created () {
     this._getSingerSongList()
-    getSongUrl('003MTm6H1EknjX').then(res => {
-      console.log(res)
-    })
+    filterSongUrl('002E3MtF0IAMMY')
   }
 }
 </script>

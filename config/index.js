@@ -28,8 +28,7 @@ module.exports = {
         secure: true,
         changeOrigin: true,
         pathRewrite: {
-          '^/singer/getSingerList': '',
-          '^/singer/songList': ''
+          '^/singer': ''
         },
         headers: {
           Origin: 'https://y.qq.com',

@@ -1,6 +1,6 @@
 import jsonp from 'common/js/jsonp'
 import { commonParams, opt, ERR_OK } from './config'
-import axios from 'axios'
+import { axiosRequest } from 'common/js/axiosRequest'
 
 export function getSingerList () {
   const url = 'https://c.y.qq.com/v8/fcg-bin/v8.fcg'
@@ -19,26 +19,20 @@ export function getSingerList () {
   return jsonp(url, data, opt)
 }
 
-export function getSongList (singerMid) {
-  const url = '/singer/songList'
-
-  const data = {
-    singerSongList: {
-      method: 'GetSingerSongList',
-      param: {
-        singerMid: singerMid,
-        begin: 0,
-        num: 15,
-        order: 1
-      },
-      module: 'musichall.song_list_server'
-    }
+export function getSongList (singermid) {
+  const url = '/singer'
+  const module = 'musichall.song_list_server'
+  const method = 'GetSingerSongList'
+  const param = {
+    singermid: singermid,
+    begin: 0,
+    num: 15,
+    order: 1
   }
 
-  return axios.post(url, data).then((res) => {
-    let data = res.data
-    if (data.code === ERR_OK && data.singerSongList) {
-      return Promise.resolve(data.singerSongList)
+  return axiosRequest('post', url, module, method, param).then((res) => {
+    if (res.code === ERR_OK && res.request && res.request.code === ERR_OK) {
+      return Promise.resolve(res.request.data)
     }
   })
 }
