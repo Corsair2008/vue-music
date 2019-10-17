@@ -38,16 +38,15 @@ function filterSinger (singer) {
 }
 
 export function filterSongUrl (songmid) {
-  if (!songmid) {
-    return ''
-  }
   getSongUrl(songmid).then((res) => {
-    console.log(res)
     if (res.code === ERR_OK) {
-      this.param = res.data
+      let midurlinfo = res.data.midurlinfo[0]
+      if (midurlinfo && midurlinfo.purl) {
+        let url = `http://ws.stream.qqmusic.qq.com/${midurlinfo.purl}`
+        return Promise.resolve(url)
+      }
     }
   })
-  console.log(this)
 }
 
 function getSongUrl (songmid) {

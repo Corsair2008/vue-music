@@ -1,21 +1,29 @@
 <template>
 <transition appear name="slide">
-  <div class="singer-detail"></div>
+  <music-list :title="title" :bg-image="bgImage" :song-list="songList"></music-list>
 </transition>
 </template>
 
 <script type="text/ecmascript-6">
 import { mapGetters } from 'vuex'
 import { getSongList } from '@/api/singer'
-import { filterSongUrl } from 'common/js/song'
+import { createSong } from 'common/js/song'
+import MusicList from '@/components/music-list/music-list'
 export default {
   name: 'SingerDetail',
   data () {
     return {
-      songList: []
+      songList: [],
+      songUrlList: []
     }
   },
   computed: {
+    title () {
+      return this.singer.name
+    },
+    bgImage () {
+      return this.singer.avatar
+    },
     ...mapGetters([
       'singer'
     ])
@@ -31,16 +39,16 @@ export default {
           this._backToSingerPage()
           return
         }
-        this.songList = res.songList
-        console.log(this.songList)
+        this.songList = this._normalizeSongList(res.songList)
       })
     },
     _normalizeSongList (songList) {
-      // let ret = []
-      // songList.forEach((song) => {
-      //   let {musicData} = song
-      //   console.log(musicData)
-      // })
+      let ret = []
+      songList.forEach((song) => {
+        let songInfo = song.songInfo
+        ret.push(createSong(songInfo))
+      })
+      return ret
     },
     _backToSingerPage () {
       this.$router.push('/singer')
@@ -48,22 +56,15 @@ export default {
   },
   created () {
     this._getSingerSongList()
-    filterSongUrl('002E3MtF0IAMMY')
+  },
+  components: {
+    MusicList
   }
 }
 </script>
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
   @import '~common/stylus/variable'
-
-  .singer-detail
-    position: fixed
-    z-index: 100
-    top: 0
-    left: 0
-    right: 0
-    bottom: 0
-    background: $color-background
 
   .slide-enter-active,.slide-leave-active
     transition: all .3s
