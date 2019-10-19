@@ -5,6 +5,12 @@
   </div>
   <h1 class="title" v-html="title"></h1>
   <div :style="bgStyle" ref="bgImage" class="bg-image" >
+  <div class="play-wrapper" v-show="songList.length > 0">
+    <div class="play">
+      <i class="icon-play"></i>
+      <span class="text">随机播放全部</span>
+    </div>
+  </div>
     <div ref="filter" class="filter"></div>
   </div>
   <scroll :data="songList"
@@ -16,6 +22,9 @@
     <div class="song-list-wrapper">
       <song-list :song-list="songList"></song-list>
     </div>
+    <div class="loading-container" v-show="!songList.length">
+      <loading></loading>
+    </div>
   </scroll>
 </div>
 </template>
@@ -23,8 +32,12 @@
 <script type="text/ecmascript-6">
 import SongList from '@/components/song-list/song-list'
 import Scroll from '@/base/scroll/scroll'
+import Loading from '@/base/loading/loading'
+import { prefixStyle } from 'common/js/dom'
 
 const TOP_HEIGHT = 40
+const transform = prefixStyle('transform')
+const backdrop = prefixStyle('backdrop-filter')
 
 export default {
   name: 'MusicList',
@@ -75,16 +88,13 @@ export default {
       if (newY > 0) {
         zIndex = 10
         let scale = 1 + percent
-        this.$refs.bgImage.style.transform = `scale(${scale})`
-        this.$refs.bgImage.style.webkitTransform = `scale(${scale})`
+        this.$refs.bgImage.style[transform] = `scale(${scale})`
       } else {
         let blur = Math.min(20 * percent, 20)
         let height = Math.max(this.bgImageMaxScrollHeight, newY)
-        let opacity = Math.max((1 - height / this.bgImageMaxScrollHeight), 0.2)
-        this.$refs.bgImage.style.transform = `translate3d(0, ${height}px, 0)`
-        this.$refs.bgImage.style.webkitTransform = `translate3d(0, ${height}px, 0)`
-        this.$refs.filter.style.backdropFilter = `blur(${blur}px)`
-        this.$refs.filter.style.webkitBackdropFilter = `blur(${blur}px)`
+        let opacity = Math.max((1 - height / this.bgImageMaxScrollHeight), 0.5)
+        this.$refs.bgImage.style[transform] = `translate3d(0, ${height}px, 0)`
+        this.$refs.filter.style[backdrop] = `blur(${blur}px)`
         this.$refs.bgImage.style.opacity = opacity
       }
       this.$refs.bgImage.style.zIndex = zIndex
@@ -92,7 +102,8 @@ export default {
   },
   components: {
     Scroll,
-    SongList
+    SongList,
+    Loading
   }
 }
 </script>
@@ -137,6 +148,30 @@ export default {
       padding-top: 70%
       transform-origin: top
       background-size: cover
+      .play-wrapper
+        position: absolute
+        bottom: 20px
+        z-index:50
+        width: 100%
+        .play
+          box-sizing: border-box
+          width: 135px
+          padding: 7px 0
+          margin: 0 auto
+          text-align: center
+          border: 1px solid $color-theme
+          color: $color-theme
+          border-radius: 100px
+          font-size: 0
+          .icon-play
+            display: inline-block
+            vertical-align: middle
+            margin-right: 6px
+            font-size: $font-size-medium-x
+          .text
+            display: inline-block
+            vertical-align: middle
+            font-size: $font-size-small
       .filter
         position: absolute
         top: 0
@@ -152,4 +187,9 @@ export default {
       background: $color-background
       .song-list-wrapper
         padding: 20px 30px
+    .loading-container
+      position: absolute
+      width: 100%
+      top: 50%
+      transform: translateY(-50%)
 </style>
