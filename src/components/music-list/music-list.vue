@@ -20,7 +20,7 @@
           class="list"
   >
     <div class="song-list-wrapper">
-      <song-list :song-list="songList"></song-list>
+      <song-list :song-list="songList" @select="select(item, index)"></song-list>
     </div>
     <div class="loading-container" v-show="!songList.length">
       <loading></loading>
@@ -34,6 +34,7 @@ import SongList from '@/components/song-list/song-list'
 import Scroll from '@/base/scroll/scroll'
 import Loading from '@/base/loading/loading'
 import { prefixStyle } from 'common/js/dom'
+import { mapActions } from 'vuex'
 
 const TOP_HEIGHT = 40
 const transform = prefixStyle('transform')
@@ -66,7 +67,16 @@ export default {
     },
     scroll (pos) {
       this.scrollY = pos.y
-    }
+    },
+    select (item, index) {
+      this.selectPlay({
+        list: this.songList,
+        index
+      })
+    },
+    ...mapActions([
+      'selectPlay'
+    ])
   },
   created () {
     this.listenScroll = true
@@ -83,10 +93,8 @@ export default {
   },
   watch: {
     scrollY (newY) {
-      let zIndex = 0
       let percent = newY / this.bgImageHeight
       if (newY > 0) {
-        zIndex = 10
         let scale = 1 + percent
         this.$refs.bgImage.style[transform] = `scale(${scale})`
       } else {
@@ -97,7 +105,6 @@ export default {
         this.$refs.filter.style[backdrop] = `blur(${blur}px)`
         this.$refs.bgImage.style.opacity = opacity
       }
-      this.$refs.bgImage.style.zIndex = zIndex
     }
   },
   components: {
@@ -143,6 +150,7 @@ export default {
       color: $color-text
     .bg-image
       position: relative
+      z-index: 10
       width: 100%
       height: 0
       padding-top: 70%
