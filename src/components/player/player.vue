@@ -1,18 +1,21 @@
 <template>
 <div class="player" v-show="playlist.length > 0">
   <div class="normal-player" v-show="fullscreen">
+    <div class="background">
+      <img width="100%" height="100%" :src="currentSong.image">
+    </div>
     <div class="top">
       <div class="back" @click="back">
         <i class="icon-back"></i>
       </div>
-      <h1 class="title"> v-html="标题"</h1>
-      <h2 class="subtitle"> v-html="副标题"</h2>
+      <h1 class="title" v-html="currentSong.singer"></h1>
+      <h2 class="subtitle" v-html="currentSong.name"></h2>
     </div>
     <div class="middle">
       <div class="middle-l">
         <div class="cd-wrapper">
           <div class="cd">
-            <img class="image">
+            <img class="image" :src="currentSong.image">
           </div>
         </div>
       </div>
@@ -37,7 +40,18 @@
       </div>
     </div>
   </div>
-  <div class="mini-player" v-show="!fullscreen">迷你播放器</div>
+  <div class="mini-player" v-show="!fullscreen" @click="openPlayer">
+    <div class="icon">
+      <img width="40" height="40" :src="currentSong.image">
+    </div>
+    <div class="text">
+      <h2 class="name" v-html="currentSong.name"></h2>
+      <p class="desc" v-html="currentSong.singer"></p>
+    </div>
+    <div class="control">
+      <i class="icon-play-mini"></i>
+    </div>
+  </div>
 </div>
 </template>
 
@@ -49,6 +63,9 @@ export default {
     back () {
       this.setFullscreen(false)
     },
+    openPlayer () {
+      this.setFullscreen(true)
+    },
     ...mapMutations({
       setFullscreen: 'SET_FULLSCREEN'
     })
@@ -56,7 +73,8 @@ export default {
   computed: {
     ...mapGetters([
       'fullscreen',
-      'playlist'
+      'playlist',
+      'currentSong'
     ])
   }
 }
@@ -75,6 +93,15 @@ export default {
       bottom: 0
       z-index: 150
       background: $color-background
+      .background
+        position: absolute
+        left: 0
+        top: 0
+        width: 100%
+        height: 100%
+        z-index: -1
+        opacity: 0.6
+        filter: blur(20px)
       .top
         position: relative
         margin-bottom: 25px
@@ -168,4 +195,30 @@ export default {
       width: 100%
       height: 60px
       background: $color-highlight-background
+      .icon
+        flex: 0 0 40px
+        width: 40px
+        padding: 0 10px 0 20px
+        img
+          border-radius: 50%
+      .text
+        display: flex
+        flex-direction: column
+        justify-content: center
+        flex: 1
+        line-height: 20px
+        overflow: hidden
+        .name
+          margin-bottom: 2px
+          no-wrap()
+          font-size: $font-size-medium
+          color: $color-text
+        .desc
+          no-wrap()
+          font-size: $font-size-small
+          color: $color-text-d
+      .control
+        font-size: 32px
+        width: 30px
+        padding: 0 10px
 </style>

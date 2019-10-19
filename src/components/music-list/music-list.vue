@@ -20,7 +20,7 @@
           class="list"
   >
     <div class="song-list-wrapper">
-      <song-list :song-list="songList" @select="select(item, index)"></song-list>
+      <song-list :song-list="songList" @select="select"></song-list>
     </div>
     <div class="loading-container" v-show="!songList.length">
       <loading></loading>
@@ -100,10 +100,9 @@ export default {
       } else {
         let blur = Math.min(20 * percent, 20)
         let height = Math.max(this.bgImageMaxScrollHeight, newY)
-        let opacity = Math.max((1 - height / this.bgImageMaxScrollHeight), 0.5)
         this.$refs.bgImage.style[transform] = `translate3d(0, ${height}px, 0)`
         this.$refs.filter.style[backdrop] = `blur(${blur}px)`
-        this.$refs.bgImage.style.opacity = opacity
+        this.$refs.bgImage.style.filter = `blur(${Math.abs(5 * percent)}px)`
       }
     }
   },
