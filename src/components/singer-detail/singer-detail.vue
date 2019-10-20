@@ -66,8 +66,8 @@ export default {
 <style scoped lang="stylus" rel="stylesheet/stylus">
   @import '~common/stylus/variable'
 
-  .slide-enter-active,.slide-leave-active
+  .slide-enter-active, .slide-leave-active
     transition: all .3s
-  .slide-enter,.slide-leave-to
+  .slide-enter, .slide-leave-to
     transform: translate3d(100%, 0, 0)
 </style>
