@@ -26,7 +26,7 @@ export function getSongList (singermid) {
   const param = {
     singermid: singermid,
     begin: 0,
-    num: 100,
+    num: 120,
     order: 1
   }
 
