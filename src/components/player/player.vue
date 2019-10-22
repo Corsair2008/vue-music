@@ -35,7 +35,7 @@
             <i class="icon-prev"></i>
           </div>
           <div class="icon i-center">
-            <i class="icon-play"></i>
+            <i @click="switchPlay" :class="playCls"></i>
           </div>
           <div class="icon i-right">
             <i class="icon-next"></i>
@@ -56,11 +56,15 @@
         <h2 class="name" v-html="currentSong.name"></h2>
         <p class="desc" v-html="currentSong.singer"></p>
       </div>
+      <div @click.stop="switchPlay" class="control">
+        <i :class="`${playCls}-mini`"></i>
+      </div>
       <div class="control">
-        <i class="icon-play-mini"></i>
+        <i class="icon-playlist"></i>
       </div>
     </div>
   </transition>
+  <audio ref="audio" :src="currentSong.url"></audio>
 </div>
 </template>
 
@@ -80,9 +84,9 @@ export default {
     openPlayer () {
       this.setFullscreen(true)
     },
-    ...mapMutations({
-      setFullscreen: 'SET_FULLSCREEN'
-    }),
+    switchPlay () {
+      this.setPlayingState(!this.playing)
+    },
     enter (el, done) {
       const { x, y, scale } = this._getPosAndScale()
 
@@ -136,14 +140,38 @@ export default {
         y,
         scale
       }
-    }
+    },
+    ...mapMutations({
+      setFullscreen: 'SET_FULLSCREEN',
+      setPlayingState: 'SET_PLAYING_STATE'
+    })
   },
   computed: {
+    playCls () {
+      return this.playing ? 'icon-pause' : 'icon-play'
+    },
+    miniPlayCls () {
+      return this.playing ? 'icon-pause-mini' : 'icon-play-mini'
+    },
     ...mapGetters([
       'fullscreen',
       'playlist',
-      'currentSong'
+      'currentSong',
+      'playing'
     ])
+  },
+  watch: {
+    currentSong (newSong) {
+      this.$nextTick(() => {
+        this.$refs.audio.play()
+      })
+    },
+    playing (newPlay) {
+      const audio = this.$refs.audio
+      this.$nextTick(() => {
+        newPlay ? audio.play() : audio.pause()
+      })
+    }
   }
 }
 </script>
@@ -299,6 +327,9 @@ export default {
         font-size: 32px
         width: 30px
         padding: 0 10px
+        .icon-play-mini, .icon-pause-mini, .icon-playlist
+          font-size: 30px
+          color: $color-theme-d
       &.mini-enter-active, .mini-leave-active
         transition: all .8s
       &.mini-enter, &.mini-leave-to

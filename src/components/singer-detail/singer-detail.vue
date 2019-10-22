@@ -8,13 +8,13 @@
 import { mapGetters } from 'vuex'
 import { getSongList } from '@/api/singer'
 import { createSong } from 'common/js/song'
+import { getSongUrl } from '@/api/song'
 import MusicList from '@/components/music-list/music-list'
 export default {
   name: 'SingerDetail',
   data () {
     return {
-      songList: [],
-      songUrlList: []
+      songList: []
     }
   },
   computed: {
@@ -39,16 +39,25 @@ export default {
           this._backToSingerPage()
           return
         }
-        this.songList = this._normalizeSongList(res.songList)
+        this._normalizeSongList(res.songList)
       })
     },
     _normalizeSongList (songList) {
-      let ret = []
-      songList.forEach((song) => {
-        let songInfo = song.songInfo
-        ret.push(createSong(songInfo))
+      let mids = []
+      let songs = songList
+      songs.forEach((song) => {
+        let mid = song.songInfo.mid
+        mids.push(mid)
       })
-      return ret
+      getSongUrl(mids).then((urls) => {
+        for (let i = 0; i < songs.length; i++) {
+          let url = urls[i]
+          if (url && url.purl) {
+            let songUrl = `http://ws.stream.qqmusic.qq.com/${url.purl}`
+            this.songList.push(createSong(songs[i].songInfo, songUrl))
+          }
+        }
+      })
     },
     _backToSingerPage () {
       this.$router.push('/singer')
