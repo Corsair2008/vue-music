@@ -14,8 +14,8 @@
         <div class="back" @click="back">
           <i class="icon-back"></i>
         </div>
-        <h1 class="title" v-html="currentSong.singer"></h1>
-        <h2 class="subtitle" v-html="currentSong.name"></h2>
+        <h1 class="title" v-html="currentSong.name"></h1>
+        <h2 class="subtitle" v-html="currentSong.singer"></h2>
       </div>
       <div class="middle">
         <div class="middle-l">
@@ -30,7 +30,7 @@
         <div class="progress-wrapper">
           <span class="time time-l">{{format(currentTime)}}</span>
           <div class="progress-bar-wrapper">
-            <progress-bar :percent="percent"></progress-bar>
+            <progress-bar :percent="percent" @percentChange="onProgressBarChange"></progress-bar>
           </div>
           <span class="time time-r">{{format(currentSong.duration)}}</span>
         </div>
@@ -168,6 +168,13 @@ export default {
     afterLeave () {
       this.$refs.cdWrapper.style.transition = ''
       this.$refs.cdWrapper.style[transform] = ''
+    },
+    onProgressBarChange (percent) {
+      const currentTime = percent * this.currentSong.duration
+      this.$refs.audio.currentTime = currentTime
+      if (!this.playing) {
+        this.switchPlay()
+      }
     },
     _padding (val, n = 2) {
       let len = val.toString().length
