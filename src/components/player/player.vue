@@ -73,7 +73,7 @@
       </div>
     </div>
   </transition>
-  <audio ref="audio" :src="currentSong.url" @canplay="ready" @error="error" @timeupdate="updateTime"></audio>
+  <audio ref="audio" :src="currentSong.url" @canplay="ready" @error="error" @timeupdate="updateTime" @ended="nextSong"></audio>
 </div>
 </template>
 
@@ -84,7 +84,9 @@ import { prefixStyle } from 'common/js/dom'
 import ProgressBar from '@/base/progress-bar/progress-bar'
 import ProgressCircle from '@/base/progress-circle/progress-circle'
 import { playMode } from 'common/js/config'
-import { shuffle } from 'common/js/util'
+import { shuffle, padding } from 'common/js/util'
+import { getLyric } from '@/api/song'
+import { Base64 } from 'js-base64'
 
 const transform = prefixStyle('transform')
 
@@ -94,7 +96,8 @@ export default {
     return {
       songReady: false,
       currentTime: 0,
-      radius: 32
+      radius: 32,
+      currentLyric: []
     }
   },
   methods: {
@@ -133,7 +136,7 @@ export default {
     format (interval) {
       const time = Math.floor(interval)
       const min = Math.floor(time / 60)
-      const sec = this._padding(time % 60)
+      const sec = padding(time % 60)
       return `${min}:${sec}`
     },
     enter (el, done) {
@@ -200,13 +203,21 @@ export default {
       })
       this.setCurrentIndex(index)
     },
-    _padding (val, n = 2) {
-      let len = val.toString().length
-      while (len < n) {
-        val = '0' + val
-        len++
+    nextSong () {
+      if (this.mode === playMode.loop) {
+        this.$refs.audio.currentTime = 0
+        this.$refs.audio.play()
+      } else {
+        this.next()
       }
-      return val
+    },
+    _getLyric () {
+      getLyric(this.currentSong.mid).then((res) => {
+        if (!res.code) {
+          this.currentLyric = Base64.decode(res.lyric)
+          console.log(this.currentLyric)
+        }
+      })
     },
     _getPosAndScale () {
       const trgWidth = 40
@@ -271,6 +282,7 @@ export default {
       }
       this.$nextTick(() => {
         this.$refs.audio.play()
+        this._getLyric()
       })
       if (!this.playing) {
         this.switchPlay()

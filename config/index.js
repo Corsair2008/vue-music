@@ -16,7 +16,8 @@ module.exports = {
         secure: true,
         changeOrigin: true,
         pathRewrite: {
-          '^/recommend/getDiscList': '/splcloud/fcgi-bin/fcg_get_diss_by_tag.fcg'
+          '^/recommend/getDiscList': '/splcloud/fcgi-bin/fcg_get_diss_by_tag.fcg',
+          '^/recommend/getLyric': '/lyric/fcgi-bin/fcg_query_lyric.fcg'
         },
         headers: {
           Origin: 'https://y.qq.com',

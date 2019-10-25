@@ -1,5 +1,6 @@
 import { axiosRequest } from 'common/js/axiosRequest'
-import { ERR_OK } from '@/api/config'
+import axios from 'axios'
+import { ERR_OK, commonParams } from '@/api/config'
 
 export function getSongUrl (mids) {
   let url = '/singer'
@@ -23,6 +24,28 @@ export function getSongUrl (mids) {
         return Promise.resolve(midurlinfo)
       }
     }
+  })
+}
+
+export function getLyric (mid) {
+  let url = '/recommend/getLyric'
+  let params = Object.assign({}, commonParams, {
+    songmid: mid
+  })
+
+  return axios.get(url, {
+    params: params
+  }).then((res) => {
+    if (res.status === 200) {
+      var data = res.data
+      var reg = /^\w+\(({[^()]+})\)$/
+      var matches = data.match(reg)
+      if (matches) {
+        data = matches[1]
+        return Promise.resolve(JSON.parse(data))
+      }
+    }
+    return Promise.reject(new Error('responding status err'))
   })
 }
 

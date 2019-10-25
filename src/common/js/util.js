@@ -12,3 +12,12 @@ export function shuffle (array) {
   }
   return _arr
 }
+
+export function padding (val, n = 2) {
+  let len = val.toString().length
+  while (len < n) {
+    val = '0' + val
+    len++
+  }
+  return val
+}
