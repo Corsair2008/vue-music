@@ -87,6 +87,7 @@ import { playMode } from 'common/js/config'
 import { shuffle, padding } from 'common/js/util'
 import { getLyric } from '@/api/song'
 import { Base64 } from 'js-base64'
+import Lyric from 'common/js/lyric'
 
 const transform = prefixStyle('transform')
 
@@ -214,8 +215,9 @@ export default {
     _getLyric () {
       getLyric(this.currentSong.mid).then((res) => {
         if (!res.code) {
-          this.currentLyric = Base64.decode(res.lyric)
-          console.log(this.currentLyric)
+          let lyric = Base64.decode(res.lyric)
+          console.log(lyric)
+          this.currentLyric = new Lyric(lyric)
         }
       })
     },
