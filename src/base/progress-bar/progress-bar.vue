@@ -44,10 +44,15 @@ export default {
       if (!this.touch.initiated) {
         return
       }
-      const barWidth = this.$refs.progressBar.clientWidth - btnWidth
-      const deltaX = e.touches[0].pageX - this.touch.startX
-      const offsetWidth = Math.min(barWidth, Math.max(0, deltaX + this.touch.left))
-      this._offset(offsetWidth)
+      if (this.timer) {
+        clearTimeout(this.timer)
+      }
+      this.timer = setTimeout(() => {
+        const barWidth = this.$refs.progressBar.clientWidth - btnWidth
+        const deltaX = e.touches[0].pageX - this.touch.startX
+        const offsetWidth = Math.min(barWidth, Math.max(0, deltaX + this.touch.left))
+        this._offset(offsetWidth)
+      }, 5)
     },
     progressTouchEnd () {
       this.touch.initiated = false

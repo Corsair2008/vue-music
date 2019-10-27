@@ -15,7 +15,9 @@
           <i class="icon-back"></i>
         </div>
         <h1 class="title" v-html="currentSong.name"></h1>
-        <h2 class="subtitle" v-html="currentSong.singer"></h2>
+        <div class="subtitle-wrapper">
+          <h2 ref="subtitle" class="subtitle" :class="{'loop': this.subtitleLoop}" v-html="currentSong.singer"></h2>
+        </div>
       </div>
       <div class="middle"
            @touchstart.prevent="middleTouchStart"
@@ -124,7 +126,8 @@ export default {
       currentLyric: null,
       currentLineNum: 0,
       curMidComp: 'cd',
-      playingLyric: ''
+      playingLyric: '',
+      subtitleLoop: false
     }
   },
   methods: {
@@ -257,20 +260,25 @@ export default {
       if (!this.touch.initiated) {
         return
       }
-      const touch = e.touches[0]
-      const deltaX = touch.pageX - this.touch.startX
-      const deltaY = touch.pageY - this.touch.startY
-      if (Math.abs(deltaX) < Math.abs(deltaY)) {
-        return
+      if (this.middleTouchTimer) {
+        clearTimeout(this.middleTouchTimer)
       }
-      let currentX = this.curMidComp === 'cd' ? 0 : -window.innerWidth
-      let offsetWidth = Math.min(0, Math.max(currentX + deltaX, -window.innerWidth))
-      this.touch.percent = Math.abs(offsetWidth / window.innerWidth)
-      this.$refs.lyricList.$el.style[transform] = `translate3d(${offsetWidth}px,0,0)`
-      this.$refs.lyricList.$el.style[transitionDuration] = 0
-      this.$refs.middleL.style.filter = 'blur(2px)'
-      this.$refs.middleL.style[transitionDuration] = 0
-      this.$refs.middleL.style.opacity = 1 - this.touch.percent
+      this.middleTouchTimer = setTimeout(() => {
+        const touch = e.touches[0]
+        const deltaX = touch.pageX - this.touch.startX
+        const deltaY = touch.pageY - this.touch.startY
+        if (Math.abs(deltaX) < Math.abs(deltaY)) {
+          return
+        }
+        let currentX = this.curMidComp === 'cd' ? 0 : -window.innerWidth
+        let offsetWidth = Math.min(0, Math.max(currentX + deltaX, -window.innerWidth))
+        this.touch.percent = Math.abs(offsetWidth / window.innerWidth)
+        this.$refs.lyricList.$el.style[transform] = `translate3d(${offsetWidth}px,0,0)`
+        this.$refs.lyricList.$el.style[transitionDuration] = 0
+        this.$refs.middleL.style[transitionDuration] = 0
+        this.$refs.middleL.style.opacity = 1 - this.touch.percent
+        this.$refs.middleL.style.filter = 'blur(3px)'
+      }, 5)
     },
     middleTouchEnd () {
       let offsetWidth
@@ -295,12 +303,14 @@ export default {
         }
       }
       const time = 300
-      this.$refs.lyricList.$el.style[transform] = `translate3d(${offsetWidth}px,0,0)`
-      this.$refs.lyricList.$el.style[transitionDuration] = `${time}ms`
-      this.$refs.middleL.style.opacity = opacity
-      this.$refs.middleL.style.filter = ''
-      this.$refs.middleL.style[transitionDuration] = `${time}ms`
-      this.touch.initiated = false
+      setTimeout(() => {
+        this.$refs.lyricList.$el.style[transform] = `translate3d(${offsetWidth}px,0,0)`
+        this.$refs.lyricList.$el.style[transitionDuration] = `${time}ms`
+        this.$refs.middleL.style.opacity = opacity
+        this.$refs.middleL.style.filter = ''
+        this.$refs.middleL.style[transitionDuration] = `${time}ms`
+        this.touch.initiated = false
+      }, 20)
     },
     _getLyric () {
       getLyric(this.currentSong.mid).then((res) => {
@@ -334,6 +344,13 @@ export default {
         x,
         y,
         scale
+      }
+    },
+    _subtitleLoop () {
+      const textWidth = this.currentSong.singer.length * 14
+      const subtitleWidth = this.$refs.subtitle.clientWidth
+      if (textWidth > subtitleWidth) {
+        this.subtitleLoop = true
       }
     },
     ...mapMutations({
@@ -385,10 +402,12 @@ export default {
       if (this.currentLyric) {
         this.currentLyric.stop()
         this.currentLineNum = 0
+        this.subtitleLoop = false
       }
-      clearTimeout(this.timer)
-      this.timer = setTimeout(() => {
+      clearTimeout(this.songPlayTimer)
+      this.songPlayTimer = setTimeout(() => {
         this._getLyric()
+        this._subtitleLoop()
         this.$refs.audio.play()
       }, 1000)
       if (!this.playing) {
@@ -416,6 +435,7 @@ export default {
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
   @import '~common/stylus/variable'
+  @import '~common/stylus/mixin'
 
   .player
     .normal-player
@@ -457,11 +477,17 @@ export default {
           no-wrap()
           font-size: $font-size-large
           color: $color-text
-        .subtitle
-          line-height: 20px
-          text-align: center
-          font-size: $font-size-medium
-          color: $color-text
+        .subtitle-wrapper
+          margin: 0 10px
+          overflow: hidden
+          .subtitle
+            line-height: 20px
+            text-align: center
+            white-space: nowrap
+            font-size: $font-size-medium
+            color: $color-text
+            &.loop
+              animation: wordsloop 10s linear infinite
       .middle
         position: fixed
         width: 100%
@@ -653,6 +679,15 @@ export default {
     }
     100% {
       transform: rotate(360deg)
+    }
+  }
+
+  @keyframes wordsloop {
+    0% {
+      transform: translate3d(0, 0, 0)
+    }
+    100% {
+      transform: translate3d(-200%, 0, 0)
     }
   }
 </style>

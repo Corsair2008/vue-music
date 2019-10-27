@@ -99,17 +99,22 @@ export default {
   },
   watch: {
     scrollY (newY) {
-      let percent = Math.abs(newY / this.bgImageHeight)
-      if (newY > 0) {
-        let scale = 1 + percent
-        this.$refs.bgImage.style[transform] = `scale(${scale})`
-      } else {
-        let blur = Math.min(5 * percent, 8)
-        let height = Math.max(this.bgImageMaxScrollHeight, newY)
-        this.$refs.bgImage.style[transform] = `translate3d(0, ${height}px, 0)`
-        this.$refs.filter.style[backdrop] = `blur(${blur}px)`
-        this.$refs.bgImage.style.filter = `blur(${blur}px)`
+      if (this.timer) {
+        clearTimeout(this.timer)
       }
+      this.timer = setTimeout(() => {
+        let percent = Math.abs(newY / this.bgImageHeight)
+        if (newY > 0) {
+          let scale = 1 + percent
+          this.$refs.bgImage.style[transform] = `scale(${scale})`
+        } else {
+          let blur = Math.min(5 * percent, 8)
+          let height = Math.max(this.bgImageMaxScrollHeight, newY)
+          this.$refs.bgImage.style[transform] = `translate3d(0, ${height}px, 0)`
+          this.$refs.filter.style[backdrop] = `blur(${blur}px)`
+          this.$refs.bgImage.style.filter = `blur(${blur}px)`
+        }
+      }, 6)
     }
   },
   components: {

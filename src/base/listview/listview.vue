@@ -92,12 +92,17 @@ export default {
       this._scroll(anchorIndex)
     },
     onShortcutMove (e) {
-      this.touch.y2 = e.touches[0].pageY
-      let delta = Math.floor((this.touch.y2 - this.touch.y1) / ANCHOR_HEIGHT)
-      let anchorIndex = this.touch.anchorIndex + delta
-      if (anchorIndex >= 0 && anchorIndex < this.listHeight.length - 1) {
-        this._scroll(anchorIndex)
+      if (this.timer) {
+        clearTimeout(this.timer)
       }
+      this.timer = setTimeout(() => {
+        this.touch.y2 = e.touches[0].pageY
+        let delta = Math.floor((this.touch.y2 - this.touch.y1) / ANCHOR_HEIGHT)
+        let anchorIndex = this.touch.anchorIndex + delta
+        if (anchorIndex >= 0 && anchorIndex < this.listHeight.length - 1) {
+          this._scroll(anchorIndex)
+        }
+      }, 5)
     },
     scroll (pos) {
       this.scrollY = pos.y
