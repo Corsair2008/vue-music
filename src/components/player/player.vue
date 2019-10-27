@@ -17,16 +17,37 @@
         <h1 class="title" v-html="currentSong.name"></h1>
         <h2 class="subtitle" v-html="currentSong.singer"></h2>
       </div>
-      <div class="middle">
-        <div class="middle-l">
+      <div class="middle"
+           @touchstart.prevent="middleTouchStart"
+           @touchmove.prevent="middleTouchMove"
+           @touchend="middleTouchEnd"
+      >
+        <div class="middle-l" ref="middleL">
           <div class="cd-wrapper" ref="cdWrapper">
             <div class="cd" :class="cdCls">
               <img class="image" :src="currentSong.image">
             </div>
           </div>
+          <div class="playing-lyric-wrapper">
+            <div class="playing-lyric">{{this.playingLyric}}</div>
+          </div>
         </div>
+        <scroll class="middle-r" ref="lyricList" :data="currentLyric && currentLyric.lines">
+          <div class="lyric-wrapper">
+            <div v-if="currentLyric">
+              <p ref="lyricLine" class="text"
+                 v-for="(line, index) in currentLyric.lines" :key="index"
+                 :class="{'current': currentLineNum === index}"
+              >{{line.txt}}</p>
+            </div>
+          </div>
+        </scroll>
       </div>
       <div class="bottom">
+        <div class="dot-wrapper">
+          <div class="dot" :class="{'active': this.curMidComp === 'cd'}"></div>
+          <div class="dot" :class="{'active': this.curMidComp === 'lyric'}"></div>
+        </div>
         <div class="progress-wrapper">
           <span class="time time-l">{{format(currentTime)}}</span>
           <div class="progress-bar-wrapper">
@@ -83,6 +104,7 @@ import animations from 'create-keyframe-animation'
 import { prefixStyle } from 'common/js/dom'
 import ProgressBar from '@/base/progress-bar/progress-bar'
 import ProgressCircle from '@/base/progress-circle/progress-circle'
+import Scroll from '@/base/scroll/scroll'
 import { playMode } from 'common/js/config'
 import { shuffle, padding } from 'common/js/util'
 import { getLyric } from '@/api/song'
@@ -90,6 +112,7 @@ import { Base64 } from 'js-base64'
 import Lyric from 'common/js/lyric'
 
 const transform = prefixStyle('transform')
+const transitionDuration = prefixStyle('transitionDuration')
 
 export default {
   name: 'Player',
@@ -98,7 +121,10 @@ export default {
       songReady: false,
       currentTime: 0,
       radius: 32,
-      currentLyric: []
+      currentLyric: null,
+      currentLineNum: 0,
+      curMidComp: 'cd',
+      playingLyric: ''
     }
   },
   methods: {
@@ -110,6 +136,9 @@ export default {
     },
     switchPlay () {
       this.setPlayingState(!this.playing)
+      if (this.currentLyric) {
+        this.currentLyric.togglePlay()
+      }
     },
     prev () {
       if (!this.songReady) {
@@ -185,6 +214,9 @@ export default {
       if (!this.playing) {
         this.switchPlay()
       }
+      if (this.currentLyric) {
+        this.currentLyric.seek(currentTime * 1000)
+      }
     },
     changeMode () {
       const mode = (this.mode + 1) % 3
@@ -208,18 +240,86 @@ export default {
       if (this.mode === playMode.loop) {
         this.$refs.audio.currentTime = 0
         this.$refs.audio.play()
+        if (this.currentLyric) {
+          this.currentLyric.seek(0)
+        }
       } else {
         this.next()
       }
+    },
+    middleTouchStart (e) {
+      const touch = e.touches[0]
+      this.touch.initiated = true
+      this.touch.startX = touch.pageX
+      this.touch.startY = touch.pageY
+    },
+    middleTouchMove (e) {
+      if (!this.touch.initiated) {
+        return
+      }
+      const touch = e.touches[0]
+      const deltaX = touch.pageX - this.touch.startX
+      const deltaY = touch.pageY - this.touch.startY
+      if (Math.abs(deltaX) < Math.abs(deltaY)) {
+        return
+      }
+      let currentX = this.curMidComp === 'cd' ? 0 : -window.innerWidth
+      let offsetWidth = Math.min(0, Math.max(currentX + deltaX, -window.innerWidth))
+      this.touch.percent = Math.abs(offsetWidth / window.innerWidth)
+      this.$refs.lyricList.$el.style[transform] = `translate3d(${offsetWidth}px,0,0)`
+      this.$refs.lyricList.$el.style[transitionDuration] = 0
+      this.$refs.middleL.style.filter = 'blur(2px)'
+      this.$refs.middleL.style[transitionDuration] = 0
+      this.$refs.middleL.style.opacity = 1 - this.touch.percent
+    },
+    middleTouchEnd () {
+      let offsetWidth
+      let opacity
+      if (this.curMidComp === 'cd') {
+        if (this.touch.percent > 0.1) {
+          offsetWidth = -window.innerWidth
+          opacity = 0
+          this.curMidComp = 'lyric'
+        } else {
+          offsetWidth = 0
+          opacity = 1
+        }
+      } else {
+        if (this.touch.percent < 0.9) {
+          offsetWidth = 0
+          opacity = 1
+          this.curMidComp = 'cd'
+        } else {
+          offsetWidth = -window.innerWidth
+          opacity = 0
+        }
+      }
+      const time = 300
+      this.$refs.lyricList.$el.style[transform] = `translate3d(${offsetWidth}px,0,0)`
+      this.$refs.lyricList.$el.style[transitionDuration] = `${time}ms`
+      this.$refs.middleL.style.opacity = opacity
+      this.$refs.middleL.style.filter = ''
+      this.$refs.middleL.style[transitionDuration] = `${time}ms`
+      this.touch.initiated = false
     },
     _getLyric () {
       getLyric(this.currentSong.mid).then((res) => {
         if (!res.code) {
           let lyric = Base64.decode(res.lyric)
-          console.log(lyric)
-          this.currentLyric = new Lyric(lyric)
+          this.currentLyric = new Lyric(lyric, this._handleLyric)
+          this.currentLyric.play()
         }
       })
+    },
+    _handleLyric ({txt, lineNum}) {
+      this.currentLineNum = lineNum
+      if (lineNum > 5) {
+        let lineEl = this.$refs.lyricLine[lineNum - 5]
+        this.$refs.lyricList.scrollToElement(lineEl, 1000)
+      } else {
+        this.$refs.lyricList.scrollTo(0, 0, 1000)
+      }
+      this.playingLyric = txt
     },
     _getPosAndScale () {
       const trgWidth = 40
@@ -282,10 +382,15 @@ export default {
       if (newSong.id === oldSong.id) {
         return
       }
-      this.$nextTick(() => {
-        this.$refs.audio.play()
+      if (this.currentLyric) {
+        this.currentLyric.stop()
+        this.currentLineNum = 0
+      }
+      clearTimeout(this.timer)
+      this.timer = setTimeout(() => {
         this._getLyric()
-      })
+        this.$refs.audio.play()
+      }, 1000)
       if (!this.playing) {
         this.switchPlay()
       }
@@ -298,16 +403,19 @@ export default {
       })
     }
   },
+  created () {
+    this.touch = {}
+  },
   components: {
     ProgressBar,
-    ProgressCircle
+    ProgressCircle,
+    Scroll
   }
 }
 </script>
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
   @import '~common/stylus/variable'
-  @import '~common/stylus/mixin'
 
   .player
     .normal-player
@@ -355,7 +463,7 @@ export default {
           font-size: $font-size-medium
           color: $color-text
       .middle
-        position: flex
+        position: fixed
         width: 100%
         top: 80px
         bottom: 170px
@@ -391,10 +499,52 @@ export default {
                 width: 100%
                 height: 100%
                 border-radius: 50%
+          .playing-lyric-wrapper
+            width: 80%
+            margin: 30px auto 0 auto
+            overflow: hidden
+            text-align: center
+            .playing-lyric
+              height: 20px
+              line-height: 20px
+              font-size: $font-size-medium
+              color: $color-text-l
+        .middle-r
+          display: inline-block
+          vertical-align: top
+          width: 100%
+          height: 100%
+          overflow: hidden
+          .lyric-wrapper
+            width: 80%
+            margin: 0 auto
+            overflow: hidden
+            text-align: center
+            .text
+              line-height: 32px
+              color: $color-text-l
+              font-size: $font-size-medium
+              &.current
+                color: $color-text
       .bottom
         position: absolute
         bottom: 50px
         width: 100%
+        .dot-wrapper
+          text-align: center
+          font-size: 0
+          .dot
+            display: inline-block
+            vertical-align: middle
+            margin: 0 4px
+            width: 8px
+            height: 8px
+            border-radius: 50%
+            background: $color-text-l
+            &.active
+              width: 20px
+              border-radius: 5px
+              background: $color-text-ll
         .progress-wrapper
           display: flex
           align-items: center

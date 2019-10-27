@@ -42,7 +42,7 @@ export default class Lyric {
   }
 
   _initLines () {
-    const lines = this.lyric.splite('\n')
+    const lines = this.lyric.split('\n')
     const offset = parseInt(this.tags['offset']) || 0
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i]
@@ -51,7 +51,7 @@ export default class Lyric {
         const txt = line.replace(timeExp, '').trim()
         if (txt) {
           this.lines.push({
-            time: result[1] * 60 * 1000 + result[2] * 100 + (result[3] || 0) * 10 + offset,
+            time: result[1] * 60 * 1000 + result[2] * 1000 + (result[3] || 0) * 10 + offset,
             txt
           })
         }
@@ -65,7 +65,7 @@ export default class Lyric {
 
   _findCurLine (time) {
     for (let i = 0; i < this.lines.length; i++) {
-      if (time <= this.lines[i]) {
+      if (time <= this.lines[i].time) {
         return i
       }
     }
@@ -84,12 +84,11 @@ export default class Lyric {
 
   _playRest () {
     let line = this.lines[this.curLine]
-    let delay = line.time - this.startStamp
-    this.startStamp = line.time
+    let delay = line.time - (+new Date() - this.startStamp)
 
     this.timer = setTimeout(() => {
       this._callHandler(this.curLine++)
-      if (this.curLine < this.lines.length && this.startStamp === STATE_PLAY) {
+      if (this.curLine < this.lines.length && this.state === STATE_PLAY) {
         this._playRest()
       }
     }, delay)
@@ -101,7 +100,7 @@ export default class Lyric {
     }
 
     this.state = STATE_PLAY
-    this.startStamp = startTime
+    this.startStamp = +new Date() - startTime
     this.curLine = this._findCurLine(startTime)
 
     if (!skipLast) {
@@ -111,6 +110,17 @@ export default class Lyric {
     if (this.curLine < this.lines.length) {
       clearTimeout(this.timer)
       this._playRest()
+    }
+  }
+
+  togglePlay () {
+    var now = +new Date()
+    if (this.state === STATE_PLAY) {
+      this.stop()
+      this.pauseStamp = now
+    } else {
+      this.play((this.pauseStamp || now) - (this.startStamp || now), true)
+      this.pauseStamp = 0
     }
   }
 
