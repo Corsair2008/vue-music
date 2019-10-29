@@ -17,11 +17,12 @@ module.exports = {
         changeOrigin: true,
         pathRewrite: {
           '^/recommend/getDiscList': '/splcloud/fcgi-bin/fcg_get_diss_by_tag.fcg',
-          '^/recommend/getLyric': '/lyric/fcgi-bin/fcg_query_lyric.fcg'
+          '^/recommend/getLyric': '/lyric/fcgi-bin/fcg_query_lyric.fcg',
+          '^/recommend/getSongList': '/qzone/fcg-bin/fcg_ucc_getcdinfo_byids_cp.fcg'
         },
         headers: {
           Origin: 'https://y.qq.com',
-          Referer: 'https://y.qq.com/portal/playlist.html'
+          Referer: 'https://y.qq.com/'
         }
       },
       '/singer': {
@@ -33,7 +34,7 @@ module.exports = {
         },
         headers: {
           Origin: 'https://y.qq.com',
-          Referer: 'https://y.qq.com/n/yqq/singer'
+          Referer: 'https://y.qq.com/'
         }
       }
     },

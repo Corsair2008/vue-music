@@ -24,6 +24,19 @@ export function createSong (songInfo, songUrl) {
   })
 }
 
+export function createDiscSong (discSong, songUrl) {
+  return new Song({
+    id: discSong.songid,
+    mid: discSong.songmid,
+    singer: filterSinger(discSong.singer),
+    name: discSong.songname,
+    album: discSong.albumname,
+    duration: discSong.interval,
+    image: `http://y.gtimg.cn/music/photo_new/T002R300x300M000${discSong.albummid}.jpg?max_age=2592000`,
+    url: songUrl
+  })
+}
+
 function filterSinger (singer) {
   if (!singer) {
     return ''

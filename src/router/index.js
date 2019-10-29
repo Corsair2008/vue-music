@@ -16,7 +16,7 @@ export default new Router({
         {
           path: ':id',
           name: 'Disc',
-          component: () => import('@/components/music-list/music-list')
+          component: () => import('@/components/disc/disc')
         }
       ]
     }, {

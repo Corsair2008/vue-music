@@ -16,7 +16,7 @@
         </div>
         <h1 class="title" v-html="currentSong.name"></h1>
         <div class="subtitle-wrapper">
-          <h2 ref="subtitle" class="subtitle" :class="{'loop': this.subtitleLoop}" v-html="currentSong.singer"></h2>
+          <h2 ref="subtitle" class="subtitle" v-html="currentSong.singer"></h2>
         </div>
       </div>
       <div class="middle"
@@ -115,6 +115,7 @@ import Lyric from 'common/js/lyric'
 
 const transform = prefixStyle('transform')
 const transitionDuration = prefixStyle('transitionDuration')
+const transitionTimingFunction = prefixStyle('transitionTimingFunction')
 
 export default {
   name: 'Player',
@@ -126,8 +127,7 @@ export default {
       currentLyric: null,
       currentLineNum: 0,
       curMidComp: 'cd',
-      playingLyric: '',
-      subtitleLoop: false
+      playingLyric: ''
     }
   },
   methods: {
@@ -347,11 +347,27 @@ export default {
       }
     },
     _subtitleLoop () {
-      const textWidth = this.currentSong.singer.length * 14
+      const textWidth = this._textWidth(this.currentSong.singer)
       const subtitleWidth = this.$refs.subtitle.clientWidth
       if (textWidth > subtitleWidth) {
-        this.subtitleLoop = true
+        let duration = 20000
+        this.$refs.subtitle.style[transform] = `translateX(${subtitleWidth - textWidth}px)`
+        this.$refs.subtitle.style[transitionDuration] = `${duration}ms`
+        this.$refs.subtitle.style[transitionTimingFunction] = `linear`
+        setTimeout(() => {
+          this.$refs.subtitle.style[transitionDuration] = '0ms'
+          this.$refs.subtitle.style[transitionTimingFunction] = ''
+          this.$refs.subtitle.style[transform] = null
+          this.$refs.subtitle.style.textOverflow = 'ellipsis'
+          this.$refs.subtitle.style.overflow = 'hidden'
+        }, duration)
       }
+    },
+    _textWidth (str, size = 14) {
+      const len = str.length
+      const alpha = str.match(/[a-zA-Z0-9\s]/ig).length
+      const slash = str.match(/\//ig).length
+      return size * (len - Math.ceil(alpha / 2 + 2 * slash / 3))
     },
     ...mapMutations({
       setFullscreen: 'SET_FULLSCREEN',
@@ -402,7 +418,6 @@ export default {
       if (this.currentLyric) {
         this.currentLyric.stop()
         this.currentLineNum = 0
-        this.subtitleLoop = false
       }
       clearTimeout(this.songPlayTimer)
       this.songPlayTimer = setTimeout(() => {
@@ -486,8 +501,6 @@ export default {
             white-space: nowrap
             font-size: $font-size-medium
             color: $color-text
-            &.loop
-              animation: wordsloop 10s linear infinite
       .middle
         position: fixed
         width: 100%
@@ -679,15 +692,6 @@ export default {
     }
     100% {
       transform: rotate(360deg)
-    }
-  }
-
-  @keyframes wordsloop {
-    0% {
-      transform: translate3d(0, 0, 0)
-    }
-    100% {
-      transform: translate3d(-200%, 0, 0)
     }
   }
 </style>

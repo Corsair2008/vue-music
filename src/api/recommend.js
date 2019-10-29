@@ -27,12 +27,39 @@ export function getDiscList () {
     categoryId: 10000000,
     sortId: 5,
     sin: 0,
-    ein: 29
+    ein: 49
   })
 
   return axios.get(url, {
     params: data
   }).then((res) => {
-    return Promise.resolve(res.data)
+    if (res.status === 200) {
+      return Promise.resolve(res.data)
+    } else {
+      return Promise.reject(new Error('http status err'))
+    }
+  })
+}
+
+export function getDiscSongs (disstid) {
+  const url = '/recommend/getSongList'
+
+  const data = Object.assign({}, commonParams, {
+    disstid,
+    type: 1,
+    json: 1,
+    utf8: 1,
+    onlysong: 1,
+    platform: 'yqq.json'
+  })
+
+  return axios.get(url, {
+    params: data
+  }).then((res) => {
+    if (res.status === 200) {
+      return Promise.resolve(res.data)
+    } else {
+      return Promise.reject(new Error('http status err'))
+    }
   })
 }

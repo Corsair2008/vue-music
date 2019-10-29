@@ -5,7 +5,7 @@
   </div>
   <h1 class="title" v-html="title"></h1>
   <div :style="bgStyle" ref="bgImage" class="bg-image" >
-  <div class="play-wrapper" v-show="songList.length > 0" @click="play">
+  <div class="play-wrapper" v-show="songList && songList.length > 0" @click="play">
     <div class="play">
       <i class="icon-play"></i>
       <span class="text">随机播放全部</span>
@@ -22,7 +22,7 @@
     <div class="song-list-wrapper">
       <song-list :song-list="songList" @select="select"></song-list>
     </div>
-    <div class="loading-container" v-show="!songList.length">
+    <div class="loading-container" v-show="songList === null || !songList.length">
       <loading></loading>
     </div>
   </scroll>
