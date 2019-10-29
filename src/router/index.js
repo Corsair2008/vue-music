@@ -11,7 +11,14 @@ export default new Router({
     }, {
       path: '/recommend',
       name: 'Recommend',
-      component: () => import('@/components/recommend/recommend')
+      component: () => import('@/components/recommend/recommend'),
+      children: [
+        {
+          path: ':id',
+          name: 'Disc',
+          component: () => import('@/components/music-list/music-list')
+        }
+      ]
     }, {
       path: '/search',
       name: 'Search',

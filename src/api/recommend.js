@@ -27,7 +27,7 @@ export function getDiscList () {
     categoryId: 10000000,
     sortId: 5,
     sin: 0,
-    ein: 19
+    ein: 29
   })
 
   return axios.get(url, {
