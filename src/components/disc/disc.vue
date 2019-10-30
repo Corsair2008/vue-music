@@ -20,7 +20,8 @@ export default {
   methods: {
     _getSongList () {
       if (!this.disc.dissid) {
-        this.$router.back()
+        this.$router.push('/recommend')
+        return
       }
       getDiscSongs(this.disc.dissid).then((res) => {
         let songs = []
