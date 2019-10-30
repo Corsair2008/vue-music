@@ -37,7 +37,14 @@ export default new Router({
     }, {
       path: '/rank',
       name: 'Rank',
-      component: () => import('@/components/rank/rank')
+      component: () => import('@/components/rank/rank'),
+      children: [
+        {
+          path: ':id',
+          name: 'Toplist',
+          component: () => import('@/components/toplist/toplist')
+        }
+      ]
     }
   ]
 })

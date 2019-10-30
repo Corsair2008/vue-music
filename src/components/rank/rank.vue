@@ -19,11 +19,12 @@
         <loading></loading>
       </div>
     </scroll>
+    <router-view></router-view>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
-import { getToplist } from '@/api/toplist'
+import { getRank } from '@/api/toplist'
 import Scroll from '@/base/scroll/scroll'
 import Loading from '@/base/loading/loading'
 import { playlistMixin } from 'common/js/mixin'
@@ -42,6 +43,7 @@ export default {
       return `${song.title} - ${song.singerName}`
     },
     selectItem (item) {
+      this.$router.push(`/rank/${item.topId}`)
       this.setToplist(item)
     },
     handlePlaylist (playlist) {
@@ -52,8 +54,8 @@ export default {
       this.$refs.rank.style.bottom = bottom
       this.$refs.toplist.refresh()
     },
-    _getToplist () {
-      getToplist().then((res) => {
+    _getRank () {
+      getRank().then((res) => {
         let toplist = []
         if (res.group) {
           res.group.forEach((list) => {
@@ -70,7 +72,7 @@ export default {
     })
   },
   created () {
-    this._getToplist()
+    this._getRank()
   },
   components: {
     Scroll,

@@ -1,11 +1,20 @@
 import { axiosRequest } from 'common/js/axiosRequest'
 import { ERR_OK } from '@/api/config'
 
-export function getToplist () {
+export function getRank (topId, period) {
   const url = '/singer'
   const module = 'musicToplist.ToplistInfoServer'
-  const method = 'GetAll'
-  const param = {}
+  const method = topId ? 'GetDetail' : 'GetAll'
+  let param = {}
+
+  if (topId) {
+    param = {
+      topId,
+      offset: 0,
+      num: 50,
+      period
+    }
+  }
 
   return axiosRequest('post', url, module, method, param).then((res) => {
     if (res.code === ERR_OK) {
