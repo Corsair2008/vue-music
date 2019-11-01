@@ -1,6 +1,6 @@
 <template>
   <div class="rank" ref="rank">
-    <scroll class="toplist" :data='toplist' ref="toplist">
+    <div class="toplist" ref="toplist">
       <ul>
         <li class="item" v-for="(item, index) in toplist" :key="index" @click="selectItem(item)">
           <div class="icon">
@@ -15,10 +15,10 @@
           </ul>
         </li>
       </ul>
-      <div class="loading-container" v-show="toplist.length > 0">
+      <div class="loading-container" v-show="!toplist.length">
         <loading></loading>
       </div>
-    </scroll>
+    </div>
     <router-view></router-view>
   </div>
 </template>
@@ -52,7 +52,6 @@ export default {
       }
       const bottom = playlist.length > 0 ? '60px' : ''
       this.$refs.rank.style.bottom = bottom
-      this.$refs.toplist.refresh()
     },
     _getRank () {
       getRank().then((res) => {
@@ -86,13 +85,9 @@ export default {
   @import '~common/stylus/mixin'
 
   .rank
-    position: fixed
-    width: 100%
-    top: 88px
-    bottom: 0
+    position: relative
+    margin-top: 88px
     .toplist
-      height: 100%
-      overflow: hidden
       .item
         display: flex
         margin: 0 20px

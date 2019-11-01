@@ -140,9 +140,9 @@ export default {
   @import "~common/stylus/mixin"
 
   .music-list
-    position: fixed
-    z-index: 100
-    top: 0
+    position: absolute
+    z-index: 10
+    top: -88px
     left: 0
     bottom: 0
     right: 0
@@ -151,7 +151,6 @@ export default {
       position: absolute
       top: 0
       left: 6px
-      z-index: 50
       .icon-back
         display: block
         padding: 10px
@@ -161,7 +160,6 @@ export default {
       position: absolute
       top: 0
       left: 10%
-      z-index: 40
       width: 80%
       no-wrap()
       text-align: center
@@ -170,7 +168,6 @@ export default {
       color: $color-text
     .bg-image
       position: relative
-      z-index: 10
       width: 100%
       height: 0
       padding-top: 70%
@@ -179,7 +176,6 @@ export default {
       .play-wrapper
         position: absolute
         bottom: 20px
-        z-index:50
         width: 100%
         .play
           box-sizing: border-box
