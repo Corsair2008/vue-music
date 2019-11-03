@@ -18,7 +18,8 @@ module.exports = {
         pathRewrite: {
           '^/recommend/getDiscList': '/splcloud/fcgi-bin/fcg_get_diss_by_tag.fcg',
           '^/recommend/getLyric': '/lyric/fcgi-bin/fcg_query_lyric.fcg',
-          '^/recommend/getSongList': '/qzone/fcg-bin/fcg_ucc_getcdinfo_byids_cp.fcg'
+          '^/recommend/getSongList': '/qzone/fcg-bin/fcg_ucc_getcdinfo_byids_cp.fcg',
+          '^/recommend/getSuggest': '/soso/fcgi-bin/search_for_qq_cp'
         },
         headers: {
           Origin: 'https://y.qq.com',

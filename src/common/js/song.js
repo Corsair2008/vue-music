@@ -37,7 +37,7 @@ export function createDiscSong (discSong, songUrl) {
   })
 }
 
-function filterSinger (singer) {
+export function filterSinger (singer) {
   if (!singer) {
     return ''
   }
