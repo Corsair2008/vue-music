@@ -4,6 +4,12 @@ export const playMode = {
   random: 2
 }
 
+export const detailType = {
+  singer: 1,
+  toplist: 2,
+  disc: 3
+}
+
 export const toplist = {
   popular: 4,
   hotsong: 26,

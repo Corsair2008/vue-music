@@ -36,6 +36,11 @@ module.exports = {
     alias: {
       '@': resolve('src'),
       common: '@/common/',
+      detail: '@/components/pages/detail',
+      rank: '@/components/pages/rank',
+      recommend: '@/components/pages/recommend',
+      singer: '@/components/pages/singer',
+      search: '@/components/pages/search'
     }
   },
   module: {

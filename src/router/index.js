@@ -11,40 +11,23 @@ export default new Router({
     }, {
       path: '/recommend',
       name: 'Recommend',
-      component: () => import('@/components/recommend/recommend'),
-      children: [
-        {
-          path: ':id',
-          name: 'Disc',
-          component: () => import('@/components/disc/disc')
-        }
-      ]
+      component: () => import('recommend/recommend')
     }, {
       path: '/search',
       name: 'Search',
-      component: () => import('@/components/search/search')
+      component: () => import('search/search')
     }, {
       path: '/singer',
       name: 'Singer',
-      component: () => import('@/components/singer/singer'),
-      children: [
-        {
-          path: ':id',
-          name: 'SingerDetail',
-          component: () => import('@/components/singer-detail/singer-detail')
-        }
-      ]
+      component: () => import('singer/singer')
     }, {
       path: '/rank',
       name: 'Rank',
-      component: () => import('@/components/rank/rank'),
-      children: [
-        {
-          path: ':id',
-          name: 'Toplist',
-          component: () => import('@/components/toplist/toplist')
-        }
-      ]
+      component: () => import('rank/rank')
+    }, {
+      path: '/detail',
+      name: 'Detail',
+      component: () => import('detail/detail')
     }
   ]
 })

@@ -31,13 +31,12 @@
 
 <script type="text/ecmascript-6">
 import { getRecommend, getDiscList } from '@/api/recommend'
+import { detailType } from 'common/js/config'
 import { ERR_OK } from '@/api/config'
 import Slider from '@/base/slider/slider'
-import { playlistMixin } from 'common/js/mixin'
 import { mapMutations } from 'vuex'
 export default {
   name: 'Recommend',
-  mixins: [playlistMixin],
   data () {
     return {
       recommends: [],
@@ -52,16 +51,13 @@ export default {
     this._getDiscList()
   },
   methods: {
-    handlePlaylist (playlist) {
-      if (playlist === null) {
-        return
-      }
-      const bottom = playlist.length > 0 ? '60px' : ''
-      this.$refs.recommend.style.bottom = bottom
-    },
     selectItem (item) {
       this.$router.push({
-        path: `/recommend/${item.dissid}`
+        path: '/detail',
+        query: {
+          type: detailType.disc,
+          id: item.dissid
+        }
       })
       this.setDisc(item)
     },
@@ -92,7 +88,6 @@ export default {
   .recommend
     margin-top: 88px
     .slider-wrapper
-      position: relative
       width: 100%
       overflow: hidden
     .recommend-list

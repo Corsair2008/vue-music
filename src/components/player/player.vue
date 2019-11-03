@@ -31,7 +31,7 @@
             </div>
           </div>
           <div class="playing-lyric-wrapper">
-            <div class="playing-lyric">{{this.playingLyric}}</div>
+            <div class="playing-lyric" v-html="this.playingLyric"></div>
           </div>
         </div>
         <scroll class="middle-r" ref="lyricList" :data="currentLyric && currentLyric.lines">
@@ -40,7 +40,8 @@
               <p ref="lyricLine" class="text"
                  v-for="(line, index) in currentLyric.lines" :key="index"
                  :class="{'current': currentLineNum === index}"
-              >{{line.txt}}</p>
+                 v-html="line.txt"
+              ></p>
             </div>
           </div>
         </scroll>
@@ -351,6 +352,7 @@ export default {
       const subtitleWidth = this.$refs.subtitle.clientWidth
       if (textWidth > subtitleWidth) {
         let duration = 20000
+        this.$refs.subtitle.style.overflow = ''
         this.$refs.subtitle.style[transform] = `translateX(${subtitleWidth - textWidth}px)`
         this.$refs.subtitle.style[transitionDuration] = `${duration}ms`
         this.$refs.subtitle.style[transitionTimingFunction] = `linear`
@@ -365,8 +367,8 @@ export default {
     },
     _textWidth (str, size = 14) {
       const len = str.length
-      const alpha = str.match(/[a-zA-Z0-9\s]/ig).length
-      const slash = str.match(/\//ig).length
+      const alpha = str.match(/[a-zA-Z0-9\s]/ig) ? str.match(/[a-zA-Z0-9\s]/ig).length : 0
+      const slash = str.match(/\//ig) ? str.match(/\//ig).length : 0
       return size * (len - Math.ceil(alpha / 2 + 2 * slash / 3))
     },
     ...mapMutations({

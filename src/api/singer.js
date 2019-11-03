@@ -1,5 +1,7 @@
 import jsonp from 'common/js/jsonp'
 import { commonParams, opt, ERR_OK } from './config'
+import { createSong } from 'common/js/song'
+import { getSongUrl } from '@/api/song'
 import { axiosRequest } from 'common/js/axiosRequest'
 
 export function getSingerList () {
@@ -34,5 +36,29 @@ export function getSongList (singermid) {
     if (res.code === ERR_OK && res.request && res.request.code === ERR_OK) {
       return Promise.resolve(res.request.data)
     }
+  })
+}
+
+export function normalizeSonglist (id) {
+  return getSongList(id).then((res) => {
+    let mids = []
+    let originSongList = res.songList
+    originSongList.forEach((song) => {
+      let mid = song.songInfo.mid
+      mids.push(mid)
+    })
+    return Promise.resolve({ mids, originSongList })
+  }).then(({ mids, originSongList }) => {
+    return getSongUrl(mids).then((urls) => {
+      let ret = []
+      for (let i = 0; i < originSongList.length; i++) {
+        let url = urls[i]
+        if (url && url.purl) {
+          let songUrl = `http://ws.stream.qqmusic.qq.com/${url.purl}`
+          ret.push(createSong(originSongList[i].songInfo, songUrl))
+        }
+      }
+      return Promise.resolve(ret)
+    })
   })
 }

@@ -24,15 +24,14 @@
 </template>
 
 <script type="text/ecmascript-6">
-import { getRank } from '@/api/toplist'
+import { getToplist } from '@/api/toplist'
 import Scroll from '@/base/scroll/scroll'
 import Loading from '@/base/loading/loading'
-import { playlistMixin } from 'common/js/mixin'
+import { detailType } from 'common/js/config'
 import { mapMutations } from 'vuex'
 
 export default {
   name: 'Rank',
-  mixins: [playlistMixin],
   data () {
     return {
       toplist: []
@@ -43,18 +42,18 @@ export default {
       return `${song.title} - ${song.singerName}`
     },
     selectItem (item) {
-      this.$router.push(`/rank/${item.topId}`)
+      // this.$router.push(`/rank/${item.topId}`)
+      this.$router.push({
+        path: '/detail',
+        query: {
+          type: detailType.toplist,
+          id: item.topId
+        }
+      })
       this.setToplist(item)
     },
-    handlePlaylist (playlist) {
-      if (playlist === null) {
-        return
-      }
-      const bottom = playlist.length > 0 ? '60px' : ''
-      this.$refs.rank.style.bottom = bottom
-    },
     _getRank () {
-      getRank().then((res) => {
+      getToplist().then((res) => {
         let toplist = []
         if (res.group) {
           res.group.forEach((list) => {

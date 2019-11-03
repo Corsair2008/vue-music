@@ -11,14 +11,13 @@ import { ERR_OK } from '@/api/config'
 import Singer from 'common/js/singer'
 import Listview from '@/base/listview/listview'
 import { mapMutations } from 'vuex'
-import { playlistMixin } from 'common/js/mixin'
+import { detailType } from 'common/js/config'
 
 const HOT_SINGER = '热门'
 const HOT_SINGER_LEN = 10
 
 export default {
   name: 'Singer',
-  mixins: [playlistMixin],
   data () {
     return {
       singers: []
@@ -33,17 +32,13 @@ export default {
   methods: {
     selectSinger (singer) {
       this.$router.push({
-        path: `/singer/${singer.id}`
+        path: '/detail',
+        query: {
+          type: detailType.singer,
+          id: singer.id
+        }
       })
       this.setSinger(singer)
-    },
-    handlePlaylist (playlist) {
-      if (playlist === null) {
-        return
-      }
-      const bottom = playlist.length > 0 ? '60px' : ''
-      this.$refs.singer.style.bottom = bottom
-      this.$refs.list.refresh()
     },
     _getSingerList () {
       getSingerList().then((res) => {
@@ -96,7 +91,5 @@ export default {
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
   .singer
-    position: absolute
-    bottom: 0
-    width: 100%
+    margin-top: 88px
 </style>
