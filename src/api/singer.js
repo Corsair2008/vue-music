@@ -39,6 +39,22 @@ export function getSongList (singermid) {
   })
 }
 
+export function getSingerDetail (singermid) {
+  const url = '/singer'
+  const module = 'musichall.singer_info_server'
+  const method = 'GetSingerDetail'
+  const param = {
+    singer_mids: [singermid],
+    wiki_singer: 1
+  }
+
+  return axiosRequest('post', url, module, method, param).then((res) => {
+    if (res.code === ERR_OK && res.request && res.request.code === ERR_OK) {
+      return Promise.resolve(res.request.data)
+    }
+  })
+}
+
 export function normalizeSonglist (id) {
   return getSongList(id).then((res) => {
     let mids = []

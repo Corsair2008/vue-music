@@ -9,8 +9,9 @@ import MusicList from 'detail/music-list/music-list'
 import { detailType } from 'common/js/config'
 import { normalizeToplist } from '@/api/toplist'
 import { normalizeDisclist } from '@/api/disc'
-import { normalizeSonglist } from '@/api/singer'
-import { mapGetters } from 'vuex'
+import { normalizeSonglist, getSingerDetail } from '@/api/singer'
+import { mapGetters, mapMutations } from 'vuex'
+import Singer from 'common/js/singer'
 export default {
   name: 'Detail',
   data () {
@@ -30,12 +31,12 @@ export default {
       this._getSongList(type, id)
     },
     _getSongList (type, id) {
+      if (typeof type === 'string') {
+        type = parseInt(type)
+      }
       switch (type) {
         case detailType.singer:
-          if (!this.singer) {
-            this.$router.push('/')
-            return
-          }
+          this._getSingerDetail(id)
           normalizeSonglist(id).then((res) => {
             this.title = this.singer.name
             this.bgImage = this.singer.avatar
@@ -44,30 +45,39 @@ export default {
           break
         case detailType.toplist:
           if (!this.toplist) {
-            this.$router.push('/')
             return
           }
           normalizeToplist(id).then((res) => {
-            this.title = this.toplist.title
-            this.bgImage = this.toplist.frontPicUrl
-            this.songList = res
+            this.title = res.title
+            this.bgImage = res.bgImage
+            this.songList = res.songlist
           })
           break
         case detailType.disc:
-          if (!this.disc) {
-            this.$router.push('/')
-            return
-          }
           normalizeDisclist(id).then((res) => {
-            this.title = this.disc.dissname
-            this.bgImage = this.disc.imgurl
-            this.songList = res
+            this.title = res.dissname
+            this.bgImage = res.bgImage
+            this.songList = res.songlist
           })
           break
         default:
           this.$router.push('/')
       }
-    }
+    },
+    _getSingerDetail (id) {
+      getSingerDetail(id).then((res) => {
+        if (res.singer_list && res.singer_list.length > 0) {
+          let originSinger = res.singer_list[0].basic_info
+          let singer = new Singer(originSinger.singer_mid, originSinger.name)
+          this.setSinger(singer)
+        } else {
+          return Promise.reject(new Error('singer mid err'))
+        }
+      })
+    },
+    ...mapMutations({
+      setSinger: 'SET_SINGER'
+    })
   },
   computed: {
     ...mapGetters([

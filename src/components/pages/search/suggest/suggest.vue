@@ -1,7 +1,7 @@
 <template>
 <div class="suggest">
   <ul class="suggest-list">
-    <li class="suggest-item" v-for="(item, index) in suggestList" :key="index">
+    <li class="suggest-item" v-for="(item, index) in suggestList" :key="index" @click="selectItem(item)">
       <div class="icon">
         <i :class="getIconCls(item)"></i>
       </div>
@@ -15,7 +15,9 @@
 
 <script type="text/ecmascript-6">
 import { getSuggest } from '@/api/search'
-import { filterSinger } from 'common/js/song'
+import { detailType } from 'common/js/config'
+import { getSongUrl } from '@/api/song'
+import { createDiscSong } from 'common/js/song'
 const TYPE_SINGER = 'singer'
 export default {
   name: 'Suggest',
@@ -43,11 +45,25 @@ export default {
             ret.push({...res.zhida, ...{type: TYPE_SINGER}})
           }
           if (res.song && res.song.list) {
-            ret = ret.concat(res.song.list)
+            this._normSuggestSonglist(res.song.list).then((res) => {
+              this.suggestList = ret.concat(res)
+            })
           }
-          this.suggestList = ret
         })
       }, 10)
+    },
+    selectItem (item) {
+      if (item.type === TYPE_SINGER) {
+        this.$router.push({
+          path: '/detail',
+          query: {
+            id: item.singermid,
+            type: detailType.singer
+          }
+        })
+      } else {
+        this.insertSong(item)
+      }
     },
     getIconCls (item) {
       if (item.type === TYPE_SINGER) {
@@ -60,8 +76,27 @@ export default {
       if (item.type === TYPE_SINGER) {
         return item.singername
       } else {
-        return `${item.songname}-${filterSinger(item.singer)}`
+        return `${item.name} - ${item.singer}`
       }
+    },
+    insertSong (item) {
+    },
+    _normSuggestSonglist (originSonglist) {
+      let mids = []
+      originSonglist.forEach((song) => {
+        mids.push(song.songmid)
+      })
+      return getSongUrl(mids).then((urls) => {
+        let ret = []
+        for (let i = 0; i < originSonglist.length; i++) {
+          let url = urls[i]
+          if (url && url.purl) {
+            let songUrl = `http://ws.stream.qqmusic.qq.com/${url.purl}`
+            ret.push(createDiscSong(originSonglist[i], songUrl))
+          }
+        }
+        return Promise.resolve(ret)
+      })
     }
   },
   watch: {
@@ -87,6 +122,9 @@ export default {
     .icon
       flex: 0 0 30px
       width: 30px
+      [class^="icon-"]
+        font-size: 14px
+        color: $color-text-d
     .name
       flex: 1
       font-size: $font-size-medium
@@ -94,9 +132,4 @@ export default {
       overflow: hidden
       .text
         no-wrap()
-    .no-result-wrapper
-      position: absolute
-      width: 100%
-      top: 50%
-      transform: translateY(-50%)
 </style>

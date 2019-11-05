@@ -84,7 +84,6 @@ export default {
         font-size: $font-size-small
         color: $color-text-d
   .suggest-result
-    position: absolute
+    position: relative
     width: 100%
-    top: 178px
 </style>

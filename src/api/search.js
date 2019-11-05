@@ -29,8 +29,8 @@ export function getSuggest (query, page) {
     ie: 'utf-8',
     sem: 1,
     aggr: 0,
-    perpage: 20,
-    n: 20 * page,
+    perpage: 30,
+    n: 30 * page,
     p: page,
     remoteplace: 'txt.mqq.all'
   })

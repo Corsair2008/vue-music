@@ -31,6 +31,8 @@ export function getToplist (topId, period) {
 
 export function normalizeToplist (topId, period) {
   return getToplist(topId, period).then((res) => {
+    const bgImage = res.data.frontPicUrl
+    const title = res.data.title
     let mids = []
     let originSongList = []
     if (res.songInfoList) {
@@ -39,17 +41,21 @@ export function normalizeToplist (topId, period) {
         let mid = song.mid
         mids.push(mid)
       })
-      return Promise.resolve({mids, originSongList})
+      return Promise.resolve({ mids, originSongList, title, bgImage })
     }
     return Promise.reject(new Error('have no songList'))
-  }).then(({mids, originSongList}) => {
+  }).then(({ mids, originSongList, title, bgImage }) => {
     return getSongUrl(mids).then((urls) => {
-      let ret = []
+      let ret = {
+        title,
+        bgImage,
+        songlist: []
+      }
       for (let i = 0; i < originSongList.length; i++) {
         let url = urls[i]
         if (url && url.purl) {
           let songUrl = `http://ws.stream.qqmusic.qq.com/${url.purl}`
-          ret.push(createSong(originSongList[i], songUrl))
+          ret.songlist.push(createSong(originSongList[i], songUrl))
         }
       }
       return Promise.resolve(ret)
