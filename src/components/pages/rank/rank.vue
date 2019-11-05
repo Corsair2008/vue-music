@@ -28,7 +28,6 @@ import { getToplist } from '@/api/toplist'
 import Scroll from '@/base/scroll/scroll'
 import Loading from '@/base/loading/loading'
 import { detailType } from 'common/js/config'
-import { mapMutations } from 'vuex'
 
 export default {
   name: 'Rank',
@@ -50,7 +49,6 @@ export default {
           id: item.topId
         }
       })
-      this.setToplist(item)
     },
     _getRank () {
       getToplist().then((res) => {
@@ -64,10 +62,7 @@ export default {
         }
         this.toplist = toplist
       })
-    },
-    ...mapMutations({
-      setToplist: 'SET_TOPLIST'
-    })
+    }
   },
   created () {
     this._getRank()

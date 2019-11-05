@@ -18,8 +18,8 @@ export function createSong (songInfo, songUrl) {
     singer: filterSinger(songInfo.singer),
     name: songInfo.name,
     album: songInfo.album.name,
-    duration: songInfo.interval,
-    image: `http://y.gtimg.cn/music/photo_new/T002R300x300M000${songInfo.album.mid}.jpg?max_age=2592000`,
+    duration: songInfo.interval ? songInfo.interval : 300,
+    image: songInfo.album.mid ? `http://y.gtimg.cn/music/photo_new/T002R300x300M000${songInfo.album.mid}.jpg?max_age=2592000` : '/static/image/defaultImg.jpg',
     url: songUrl
   })
 }
@@ -31,8 +31,8 @@ export function createDiscSong (discSong, songUrl) {
     singer: filterSinger(discSong.singer),
     name: discSong.songname,
     album: discSong.albumname,
-    duration: discSong.interval,
-    image: `http://y.gtimg.cn/music/photo_new/T002R300x300M000${discSong.albummid}.jpg?max_age=2592000`,
+    duration: discSong.interval ? discSong.interval : 300,
+    image: discSong.albummid ? `http://y.gtimg.cn/music/photo_new/T002R300x300M000${discSong.albummid}.jpg?max_age=2592000` : '/static/image/defaultImg.jpg',
     url: songUrl
   })
 }

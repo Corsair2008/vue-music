@@ -1,7 +1,12 @@
+const CACHE_HEIGHT = 60
+
 export const handleScrollMixin = {
   data () {
     return {
-      scrollTop: 0
+      scrollTop: -1,
+      scrollHeight: 0,
+      clientHeight: 0,
+      scrollToEnd: false
     }
   },
   mounted () {
@@ -18,7 +23,10 @@ export const handleScrollMixin = {
   },
   methods: {
     handleScroll () {
-      throw new Error('implement handleScroll function first.')
+      // implement by client
+    },
+    handleScrollToEnd () {
+      // implement by client
     },
     getScrollTop () {
       if (this.scrollTopTimer) {
@@ -27,18 +35,39 @@ export const handleScrollMixin = {
       this.scrollTopTimer = setTimeout(() => {
         let doc = document.documentElement
         let top
-        if (doc && doc.scrollTop) {
+        let height
+        let clientHeight
+        if (doc) {
           top = doc.scrollTop
+          height = doc.scrollHeight
+          clientHeight = doc.clientHeight
         } else {
           top = document.body.scrollTop
+          height = document.body.scrollHeight
+          clientHeight = document.body.clientHeight
         }
         this.scrollTop = top
+        this.scrollHeight = height
+        this.clientHeight = clientHeight
       }, 5)
+    },
+    _scrollToEnd () {
+      if (!this.scrollToEnd) {
+        const curHeight = Math.ceil(this.scrollTop + this.clientHeight)
+        if (curHeight >= this.scrollHeight - CACHE_HEIGHT) {
+          this.handleScrollToEnd()
+          this.scrollToEnd = true
+        }
+      }
     }
   },
   watch: {
     scrollTop (newVal) {
       this.handleScroll(newVal)
+      this._scrollToEnd()
+    },
+    scrollHeight () {
+      this.scrollToEnd = false
     }
   }
 }

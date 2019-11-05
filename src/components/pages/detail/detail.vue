@@ -10,7 +10,6 @@ import { detailType } from 'common/js/config'
 import { normalizeToplist } from '@/api/toplist'
 import { normalizeDisclist } from '@/api/disc'
 import { normalizeSonglist, getSingerDetail } from '@/api/singer'
-import { mapGetters, mapMutations } from 'vuex'
 import Singer from 'common/js/singer'
 export default {
   name: 'Detail',
@@ -44,9 +43,6 @@ export default {
           })
           break
         case detailType.toplist:
-          if (!this.toplist) {
-            return
-          }
           normalizeToplist(id).then((res) => {
             this.title = res.title
             this.bgImage = res.bgImage
@@ -68,23 +64,12 @@ export default {
       getSingerDetail(id).then((res) => {
         if (res.singer_list && res.singer_list.length > 0) {
           let originSinger = res.singer_list[0].basic_info
-          let singer = new Singer(originSinger.singer_mid, originSinger.name)
-          this.setSinger(singer)
+          this.singer = new Singer(originSinger.singer_mid, originSinger.name)
         } else {
           return Promise.reject(new Error('singer mid err'))
         }
       })
-    },
-    ...mapMutations({
-      setSinger: 'SET_SINGER'
-    })
-  },
-  computed: {
-    ...mapGetters([
-      'disc',
-      'toplist',
-      'singer'
-    ])
+    }
   },
   created () {
     this._query()

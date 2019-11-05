@@ -55,9 +55,10 @@ export default {
       flex: 1
       margin: 0 5px
       line-height: 26px
+      outline: none
       background: $color-highlight-background
       color: $color-text
-      font-size: $font-size-medium
+      font-size: $font-size-l
       &::placeholder
         color: $color-text-d
     .icon-dismiss

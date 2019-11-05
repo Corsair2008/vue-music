@@ -18,9 +18,12 @@ import { getSuggest } from '@/api/search'
 import { detailType } from 'common/js/config'
 import { getSongUrl } from '@/api/song'
 import { createDiscSong } from 'common/js/song'
+import { handleScrollMixin } from 'common/js/mixin'
+import { mapActions } from 'vuex'
 const TYPE_SINGER = 'singer'
 export default {
   name: 'Suggest',
+  mixins: [handleScrollMixin],
   props: {
     query: {
       type: String,
@@ -35,22 +38,17 @@ export default {
   },
   methods: {
     search (query, page) {
-      if (this.searchIntervalTimer) {
-        clearTimeout(this.searchIntervalTimer)
-      }
-      this.searchIntervalTimer = setTimeout(() => {
-        getSuggest(query, page).then((res) => {
-          let ret = []
-          if (res.zhida.singername) {
-            ret.push({...res.zhida, ...{type: TYPE_SINGER}})
-          }
-          if (res.song && res.song.list) {
-            this._normSuggestSonglist(res.song.list).then((res) => {
-              this.suggestList = ret.concat(res)
-            })
-          }
-        })
-      }, 10)
+      getSuggest(query, page).then((res) => {
+        let ret = this.suggestList
+        if (res.zhida.singername && page === 1) {
+          ret.push({...res.zhida, ...{type: TYPE_SINGER}})
+        }
+        if (res.song && res.song.list && res.song.list.length > 0) {
+          this._normSuggestSonglist(res.song.list).then((res) => {
+            this.suggestList = ret.concat(res)
+          })
+        }
+      })
     },
     selectItem (item) {
       if (item.type === TYPE_SINGER) {
@@ -79,7 +77,8 @@ export default {
         return `${item.name} - ${item.singer}`
       }
     },
-    insertSong (item) {
+    handleScrollToEnd () {
+      this.search(this.query, this.page++)
     },
     _normSuggestSonglist (originSonglist) {
       let mids = []
@@ -97,11 +96,16 @@ export default {
         }
         return Promise.resolve(ret)
       })
-    }
+    },
+    ...mapActions([
+      'insertSong'
+    ])
   },
   watch: {
     query () {
-      this.search(this.query, this.page)
+      this.page = 1
+      this.suggestList = []
+      this.search(this.query, this.page++)
     }
   }
 }

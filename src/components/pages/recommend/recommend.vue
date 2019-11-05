@@ -34,7 +34,6 @@ import { getRecommend, getDiscList } from '@/api/recommend'
 import { detailType } from 'common/js/config'
 import { ERR_OK } from '@/api/config'
 import Slider from '@/base/slider/slider'
-import { mapMutations } from 'vuex'
 export default {
   name: 'Recommend',
   data () {
@@ -59,7 +58,6 @@ export default {
           id: item.dissid
         }
       })
-      this.setDisc(item)
     },
     _getRecommend () {
       getRecommend().then((res) => {
@@ -74,10 +72,7 @@ export default {
           this.discList = res.data.list
         }
       })
-    },
-    ...mapMutations({
-      setDisc: 'SET_DISC'
-    })
+    }
   }
 }
 </script>

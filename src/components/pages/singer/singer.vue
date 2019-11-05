@@ -10,7 +10,6 @@ import { getSingerList } from '@/api/singer'
 import { ERR_OK } from '@/api/config'
 import Singer from 'common/js/singer'
 import Listview from '@/base/listview/listview'
-import { mapMutations } from 'vuex'
 import { detailType } from 'common/js/config'
 
 const HOT_SINGER = '热门'
@@ -38,7 +37,6 @@ export default {
           id: singer.id
         }
       })
-      this.setSinger(singer)
     },
     _getSingerList () {
       getSingerList().then((res) => {
@@ -81,10 +79,7 @@ export default {
         return a.title.charCodeAt(0) - b.title.charCodeAt(0)
       })
       return hot.concat(ret)
-    },
-    ...mapMutations({
-      setSinger: 'SET_SINGER'
-    })
+    }
   }
 }
 </script>
