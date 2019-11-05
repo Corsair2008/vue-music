@@ -97,7 +97,7 @@
       </div>
     </div>
   </transition>
-  <audio ref="audio" :src="currentSong.url" @canplay="ready" @error="error" @timeupdate="updateTime" @ended="nextSong"></audio>
+  <audio ref="audio" autoplay="autoplay" :src="currentSong.url" @play="ready" @error="error" @timeupdate="updateTime" @ended="nextSong"></audio>
 </div>
 </template>
 
@@ -139,6 +139,9 @@ export default {
       this.setFullscreen(true)
     },
     switchPlay () {
+      if (!this.songReady) {
+        return
+      }
       this.setPlayingState(!this.playing)
       if (this.currentLyric) {
         this.currentLyric.togglePlay()
@@ -150,6 +153,10 @@ export default {
       }
       let num = this.playlist.length
       this.setCurrentIndex((this.currentIndex - 1 + num) % num)
+      if (!this.playing) {
+        this.switchPlay()
+      }
+      this.songReady = false
     },
     next () {
       if (!this.songReady) {
@@ -157,6 +164,10 @@ export default {
       }
       let num = this.playlist.length
       this.setCurrentIndex((this.currentIndex + 1) % num)
+      if (!this.playing) {
+        this.switchPlay()
+      }
+      this.songReady = false
     },
     ready () {
       this.songReady = true
@@ -318,7 +329,9 @@ export default {
         if (!res.code) {
           let lyric = Base64.decode(res.lyric)
           this.currentLyric = new Lyric(lyric, this._handleLyric)
-          this.currentLyric.play()
+          if (this.playing) {
+            this.currentLyric.play()
+          }
         }
       })
     },
@@ -420,17 +433,15 @@ export default {
       if (this.currentLyric) {
         this.currentLyric.stop()
         this.currentLineNum = 0
+        this.currentTime = 0
+        this.currentLyric = null
+        this.songReady = false
       }
       clearTimeout(this.songPlayTimer)
       this.songPlayTimer = setTimeout(() => {
         this._getLyric()
         this._subtitleLoop()
-        this.$refs.audio.play()
       }, 1000)
-      if (!this.playing) {
-        this.switchPlay()
-      }
-      this.songReady = false
     },
     playing (newPlay) {
       const audio = this.$refs.audio

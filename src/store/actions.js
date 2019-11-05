@@ -38,24 +38,16 @@ export const insertSong = function ({commit, state}, song) {
   let sequenceList = state.sequenceList.slice()
   let currentIndex = state.currentIndex
   let fpIndex = findIndex(playlist, song)
-  let fsIndex = findIndex(sequenceList, song)
   if (fpIndex > -1) {
     if (fpIndex > currentIndex) {
       playlist.splice(fpIndex, 1)
-      playlist.splice(currentIndex++, 0, song)
+      playlist.splice(currentIndex, 0, song)
     } else {
-      playlist.splice(currentIndex, 1)
-      playlist.splice(++fpIndex, 0, song)
-    }
-    if (fsIndex > currentIndex) {
-      sequenceList.splice(fsIndex, 1)
-      sequenceList.splice(currentIndex, 0, song)
-    } else {
-      sequenceList.splice(++currentIndex, 1)
-      sequenceList.splice(fsIndex, 0, song)
+      playlist.splice(currentIndex + 1, 0, song)
+      playlist.splice(fpIndex, 1)
     }
   } else {
-    playlist.splice(++currentIndex, 0, song)
+    playlist.splice(currentIndex, 0, song)
     sequenceList.splice(sequenceList.length, 0, song)
   }
 
