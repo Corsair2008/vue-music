@@ -1,4 +1,4 @@
-const CACHE_HEIGHT = 60
+const CACHE_HEIGHT = 150
 
 export const handleScrollMixin = {
   data () {

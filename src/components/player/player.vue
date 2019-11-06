@@ -363,7 +363,7 @@ export default {
     _subtitleLoop () {
       const textWidth = this._textWidth(this.currentSong.singer)
       const subtitleWidth = this.$refs.subtitle.clientWidth
-      if (textWidth > subtitleWidth) {
+      if (subtitleWidth && textWidth > subtitleWidth) {
         let duration = 20000
         this.$refs.subtitle.style.overflow = ''
         this.$refs.subtitle.style[transform] = `translateX(${subtitleWidth - textWidth}px)`
@@ -437,9 +437,9 @@ export default {
         this.currentLyric = null
         this.songReady = false
       }
+      this._getLyric()
       clearTimeout(this.songPlayTimer)
       this.songPlayTimer = setTimeout(() => {
-        this._getLyric()
         this._subtitleLoop()
       }, 1000)
     },

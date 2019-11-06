@@ -10,6 +10,9 @@
       </div>
     </li>
   </ul>
+  <div v-show="this.query && this.suggestList.length === 0" class="no-result-wrapper">
+    <p class="no-result-text">抱歉，暂无搜索结果</p>
+  </div>
 </div>
 </template>
 
@@ -136,4 +139,14 @@ export default {
       overflow: hidden
       .text
         no-wrap()
+  .no-result-wrapper
+    position: absolute
+    width: 100%
+    top: 50%
+    transform: translateY(-50%)
+    .no-result-text
+      margin-top: 30px
+      text-align: center
+      font-size: $font-size-medium-x
+      color: $color-text-d
 </style>

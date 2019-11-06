@@ -7,6 +7,7 @@
 </template>
 
 <script type="text/ecmascript-6">
+import { debounce } from 'common/js/util'
 export default {
   name: 'SearchBox',
   data () {
@@ -28,10 +29,10 @@ export default {
       this.query = query
     }
   },
-  watch: {
-    query (newVal) {
+  created () {
+    this.$watch('query', debounce((newVal) => {
       this.$emit('query', newVal)
-    }
+    }, 200))
   }
 }
 </script>
