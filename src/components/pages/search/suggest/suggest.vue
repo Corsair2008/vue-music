@@ -58,13 +58,14 @@ export default {
         this.$router.push({
           path: '/detail',
           query: {
-            id: item.singermid,
+            id: item.singermid || item.albummid,
             type: detailType.singer
           }
         })
       } else {
         this.insertSong(item)
       }
+      this.$emit('select', item)
     },
     getIconCls (item) {
       if (item.type === TYPE_SINGER) {
@@ -79,6 +80,9 @@ export default {
       } else {
         return `${item.name} - ${item.singer}`
       }
+    },
+    handleScroll (scrollTop) {
+      this.$emit('scroll', scrollTop)
     },
     handleScrollToEnd () {
       this.search(this.query, this.page++)

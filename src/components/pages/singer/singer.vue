@@ -6,14 +6,14 @@
 </template>
 
 <script type="text/ecmascript-6">
-import { getSingerList } from '@/api/singer'
+import { getHotSingers, getSingerList } from '@/api/singer'
 import { ERR_OK } from '@/api/config'
 import Singer from 'common/js/singer'
 import Listview from '@/base/listview/listview'
 import { detailType } from 'common/js/config'
 
 const HOT_SINGER = '热门'
-const HOT_SINGER_LEN = 10
+const HOT_SINGER_LEN = 30
 
 export default {
   name: 'Singer',
@@ -39,23 +39,34 @@ export default {
       })
     },
     _getSingerList () {
-      getSingerList().then((res) => {
-        if (res.code === ERR_OK) {
-          this.singers = this._normalizeSinger(res.data.list)
-        }
+      let hot = [{
+        title: HOT_SINGER,
+        items: []
+      }]
+      getHotSingers().then((res) => {
+        res.forEach((item, index) => {
+          if (index < HOT_SINGER_LEN) {
+            hot[0].items.push(new Singer(item.singer_mid, item.singer_name))
+            let singers = []
+            getSingerList(1).then((res) => {
+              if (res.code === ERR_OK) {
+                singers = res.data.list
+                getSingerList(2).then((res) => {
+                  if (res.code === ERR_OK) {
+                    return singers.concat(res.data.list)
+                  }
+                }).then((res) => {
+                  this.singers = this._normalizeSinger(res, hot)
+                })
+              }
+            })
+          }
+        })
       })
     },
-    _normalizeSinger (list) {
-      let map = {
-        hot: {
-          title: HOT_SINGER,
-          items: []
-        }
-      }
+    _normalizeSinger (list, hot) {
+      let map = {}
       list.forEach((item, index) => {
-        if (index < HOT_SINGER_LEN) {
-          map.hot.items.push(new Singer(item.Fsinger_mid, item.Fsinger_name))
-        }
         let key = item.Findex
         if (!map[key]) {
           map[key] = {
@@ -65,14 +76,11 @@ export default {
         }
         map[key].items.push(new Singer(item.Fsinger_mid, item.Fsinger_name))
       })
-      let hot = []
       let ret = []
       for (let key in map) {
         let val = map[key]
         if (val.title.match(/[a-zA-Z]/)) {
           ret.push(val)
-        } else if (val.title === HOT_SINGER) {
-          hot.push(val)
         }
       }
       ret.sort((a, b) => {

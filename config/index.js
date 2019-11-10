@@ -37,6 +37,29 @@ module.exports = {
           Origin: 'https://y.qq.com',
           Referer: 'https://y.qq.com/'
         }
+      },
+      '/miguMobile': {
+        target: 'http://m.music.migu.cn',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/miguMobile/songs': '/migu/remoting/scr_search_tag'
+        },
+        headers: {
+          Referer: 'http://music.migu.cn',
+          Host: 'music.migu.cn'
+        }
+      },
+      '/miguWeb': {
+        target: 'http://music.migu.cn',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/miguWeb/lyric': '/v3/api/music/audioPlayer/getLyric',
+          '^/miguWeb/songs': '/v3/api/music/audioPlayer/songs'
+        },
+        headers: {
+          Referer: 'http://music.migu.cn',
+          Host: 'music.migu.cn'
+        }
       }
     },
 

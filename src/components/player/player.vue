@@ -110,7 +110,7 @@ import ProgressCircle from '@/base/progress-circle/progress-circle'
 import Scroll from '@/base/scroll/scroll'
 import { playMode } from 'common/js/config'
 import { shuffle, padding } from 'common/js/util'
-import { getLyric } from '@/api/song'
+import { getLyric, getJayLyric } from '@/api/song'
 import { Base64 } from 'js-base64'
 import Lyric from 'common/js/lyric'
 
@@ -325,6 +325,15 @@ export default {
       }, 20)
     },
     _getLyric () {
+      if (this.currentSong.url.indexOf('migu') !== -1) {
+        getJayLyric(this.currentSong.mid).then((res) => {
+          let lyric = res.lyric
+          this.currentLyric = new Lyric(lyric, this._handleLyric)
+          if (this.playing) {
+            this.currentLyric.play()
+          }
+        })
+      }
       getLyric(this.currentSong.mid).then((res) => {
         if (!res.code) {
           let lyric = Base64.decode(res.lyric)
@@ -338,7 +347,7 @@ export default {
     _handleLyric ({txt, lineNum}) {
       this.currentLineNum = lineNum
       if (lineNum > 5) {
-        let lineEl = this.$refs.lyricLine[lineNum - 5]
+        let lineEl = this.$refs.lyricLine[lineNum - 6]
         this.$refs.lyricList.scrollToElement(lineEl, 1000)
       } else {
         this.$refs.lyricList.scrollTo(0, 0, 1000)

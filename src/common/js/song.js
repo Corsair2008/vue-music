@@ -37,6 +37,19 @@ export function createDiscSong (discSong, songUrl) {
   })
 }
 
+export function createJaySong (song) {
+  return new Song({
+    id: song.id,
+    mid: song.copyrightId,
+    singer: song.singerName,
+    name: song.songName,
+    album: song.albumName,
+    duration: song.interval ? song.interval : 300,
+    image: song.cover ? song.cover : '/static/image/defaultImg.jpg',
+    url: song.mp3
+  })
+}
+
 function filterSinger (singer) {
   if (!singer) {
     return ''

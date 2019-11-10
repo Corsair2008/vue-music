@@ -1,7 +1,7 @@
 <template>
   <div class="search-box">
     <i class="icon-search"></i>
-    <input class="box" v-model="query" :placeholder="placeholder">
+    <input class="box" ref="box" v-model="query" :placeholder="placeholder">
     <i class="icon-dismiss" v-show="query" @click="clear"></i>
   </div>
 </template>
@@ -27,6 +27,9 @@ export default {
     },
     setQuery (query) {
       this.query = query
+    },
+    blur () {
+      this.$refs.box.blur()
     }
   },
   created () {

@@ -12,6 +12,7 @@
 </template>
 
 <script type="text/ecmascript-6">
+import { JAY, getJaySongDetail } from '@/api/jay'
 export default {
   name: 'SongList',
   props: {
@@ -25,7 +26,25 @@ export default {
       return `${song.singer} - ${song.album}`
     },
     selectItem (item, index) {
-      this.$emit('select', item, index)
+      if (item.singer === JAY.name) {
+        this._normalizeSong(item, index)
+      } else {
+        this.$emit('select', item, index)
+      }
+    },
+    _normalizeSong (item, index) {
+      getJaySongDetail(item.mid).then((res) => {
+        if (res.items && res.items.length > 0) {
+          const song = res.items[0]
+          const interval = song.length.split(':')
+          let duration = 0
+          for (let i = 0; i < interval.length; i++) {
+            duration += parseInt(interval[i]) + duration * 60
+          }
+          item.duration = duration
+          this.$emit('select', item, index)
+        }
+      })
     }
   }
 }

@@ -13,19 +13,34 @@
           ></li>
         </ul>
       </div>
+      <div class="search-history" v-show="searchHistory.length">
+        <h1 class="title">
+          <span class="text">搜索历史</span>
+          <span class="clear" @click="showConfirm">
+            <i class="icon-clear"></i>
+          </span>
+        </h1>
+        <search-list :list="searchHistory" @select="selectQuery" @delete="deleteSearchHistory"></search-list>
+      </div>
     </div>
     <div class="suggest-result">
-      <suggest :query="query"></suggest>
+      <suggest :query="query" @select="saveQuery" @scroll="handleScroll"></suggest>
     </div>
+    <confirm ref="confirm" text="偶哟，删除所有记录？" @confirm="clearSearchHistory"></confirm>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
 import SearchBox from '@/base/search-box/search-box'
+import SearchList from '@/base/search-list/search-list'
+import Confirm from '@/base/confirm/confirm'
 import Suggest from 'search/suggest/suggest'
 import { getHotkey } from '@/api/search'
+import { searchMixin } from 'common/js/mixin'
+import { mapGetters } from 'vuex'
 export default {
   name: 'Search',
+  mixins: [searchMixin],
   data () {
     return {
       query: '',
@@ -36,8 +51,11 @@ export default {
     selectQuery (query) {
       this.$refs.searchBox.setQuery(query)
     },
-    getQuery (query) {
-      this.query = query
+    handleScroll (scrollTop) {
+      this.$refs.searchBox.blur()
+    },
+    showConfirm () {
+      this.$refs.confirm.show()
     },
     _getHotkey () {
       getHotkey().then((res) => {
@@ -45,12 +63,19 @@ export default {
       })
     }
   },
+  computed: {
+    ...mapGetters([
+      'searchHistory'
+    ])
+  },
   created () {
     this._getHotkey()
   },
   components: {
     SearchBox,
-    Suggest
+    Suggest,
+    SearchList,
+    Confirm
   }
 }
 </script>
@@ -63,12 +88,9 @@ export default {
   .search-box-wrapper
     padding: 20px
   .shortcut-wrapper
-    position: absolute
     width: 100%
-    top: 178px
-    overflow: hidden
     .hot-key
-      margin: 0 20px 20px 20px
+      margin: 0 20px 10px 20px
       .title
         margin-bottom: 20px
         font-size: $font-size-medium
@@ -83,7 +105,21 @@ export default {
         background: $color-highlight-background
         font-size: $font-size-small
         color: $color-text-d
+    .search-history
+      margin: 0 20px
+      .title
+        display: flex
+        align-items: center
+        height: 30px
+        font-size: $font-size-medium
+        color: $color-text-l
+      .text
+        flex: 1
+      .clear
+        extend-click()
+        .icon-clear
+          font-size: $font-size-medium
+          color: $color-text-d
   .suggest-result
-    position: relative
     width: 100%
 </style>

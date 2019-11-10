@@ -27,6 +27,22 @@ export function getSongUrl (mids) {
   })
 }
 
+export function getJayLyric (id) {
+  const url = '/miguWeb/lyric'
+  const params = {
+    copyrightId: id
+  }
+  return axios.get(url, {
+    params
+  }).then((res) => {
+    if (res.status === 200) {
+      return Promise.resolve(res.data)
+    } else {
+      return Promise.reject(new Error('http status err.'))
+    }
+  })
+}
+
 export function getLyric (mid) {
   let url = '/recommend/getLyric'
   let params = Object.assign({}, commonParams, {

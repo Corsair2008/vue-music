@@ -7,20 +7,34 @@
 <script type="text/ecmascript-6">
 import MusicList from 'detail/music-list/music-list'
 import { detailType } from 'common/js/config'
+import { handleScrollMixin } from 'common/js/mixin'
 import { normalizeToplist } from '@/api/toplist'
 import { normalizeDisclist } from '@/api/disc'
 import { normalizeSonglist, getSingerDetail } from '@/api/singer'
 import Singer from 'common/js/singer'
 export default {
   name: 'Detail',
+  mixins: [handleScrollMixin],
   data () {
     return {
       title: '',
       bgImage: '',
-      songList: []
+      songList: [],
+      page: 1
     }
   },
   methods: {
+    handleScrollToEnd () {
+      const { type, id } = this.$route.query
+      if (parseInt(type) === detailType.singer) {
+        normalizeSonglist(id, this.page++).then((res) => {
+          let ret = this.songList
+          this.title = this.singer.name
+          this.bgImage = this.singer.avatar
+          this.songList = ret.concat(res)
+        })
+      }
+    },
     _query () {
       const {type, id} = this.$route.query
       if (!type || !id) {
@@ -36,7 +50,7 @@ export default {
       switch (type) {
         case detailType.singer:
           this._getSingerDetail(id)
-          normalizeSonglist(id).then((res) => {
+          normalizeSonglist(id, this.page++).then((res) => {
             this.title = this.singer.name
             this.bgImage = this.singer.avatar
             this.songList = res

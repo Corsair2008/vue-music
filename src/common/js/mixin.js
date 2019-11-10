@@ -1,4 +1,4 @@
-const CACHE_HEIGHT = 150
+import { mapActions } from 'vuex'
 
 export const handleScrollMixin = {
   data () {
@@ -54,7 +54,7 @@ export const handleScrollMixin = {
     _scrollToEnd () {
       if (!this.scrollToEnd) {
         const curHeight = Math.ceil(this.scrollTop + this.clientHeight)
-        if (curHeight >= this.scrollHeight - CACHE_HEIGHT) {
+        if (curHeight >= Math.ceil(this.scrollHeight * 0.9)) {
           this.handleScrollToEnd()
           this.scrollToEnd = true
         }
@@ -69,5 +69,26 @@ export const handleScrollMixin = {
     scrollHeight () {
       this.scrollToEnd = false
     }
+  }
+}
+
+export const searchMixin = {
+  data () {
+    return {
+      query: ''
+    }
+  },
+  methods: {
+    getQuery (query) {
+      this.query = query
+    },
+    saveQuery () {
+      this.saveSearchHistory(this.query)
+    },
+    ...mapActions([
+      'saveSearchHistory',
+      'deleteSearchHistory',
+      'clearSearchHistory'
+    ])
   }
 }
