@@ -1,4 +1,6 @@
-import { mapActions } from 'vuex'
+import { mapActions, mapGetters, mapMutations } from 'vuex'
+import {playMode} from 'common/js/config'
+import {shuffle} from 'common/js/util'
 
 export const handleScrollMixin = {
   data () {
@@ -90,5 +92,45 @@ export const searchMixin = {
       'deleteSearchHistory',
       'clearSearchHistory'
     ])
+  }
+}
+
+export const playerMixin = {
+  computed: {
+    iconMode () {
+      return this.mode === playMode.sequence ? 'icon-sequence' : this.mode === playMode.loop ? 'icon-loop' : 'icon-random'
+    },
+    ...mapGetters([
+      'sequenceList',
+      'playlist',
+      'currentSong',
+      'mode'
+    ])
+  },
+  methods: {
+    changeMode () {
+      const mode = (this.mode + 1) % 3
+      this.setPlayMode(mode)
+      let list = []
+      if (mode === playMode.random) {
+        list = shuffle(this.sequenceList)
+      } else {
+        list = this.sequenceList
+      }
+      this.resetCurrentIndex(list)
+      this.setPlaylist(list)
+    },
+    resetCurrentIndex (list) {
+      let index = list.findIndex((item) => {
+        return item.id === this.currentSong.id
+      })
+      this.setCurrentIndex(index)
+    },
+    ...mapMutations({
+      setPlayMode: 'SET_MODE',
+      setCurrentIndex: 'SET_CURRENT_INDEX',
+      setPlaylist: 'SET_PLAYLIST',
+      setPlayingState: 'SET_PLAYING_STATE'
+    })
   }
 }

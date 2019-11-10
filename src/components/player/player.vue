@@ -92,11 +92,12 @@
           <i class="icon-mini" :class="`${playCls}-mini`"></i>
         </progress-circle>
       </div>
-      <div class="control">
+      <div class="control" @click.stop="showPlaylist">
         <i class="icon-playlist"></i>
       </div>
     </div>
   </transition>
+  <playlist ref="playlist"></playlist>
   <audio ref="audio" autoplay="autoplay" :src="currentSong.url" @play="ready" @error="error" @timeupdate="updateTime" @ended="nextSong"></audio>
 </div>
 </template>
@@ -108,6 +109,7 @@ import { prefixStyle } from 'common/js/dom'
 import ProgressBar from '@/base/progress-bar/progress-bar'
 import ProgressCircle from '@/base/progress-circle/progress-circle'
 import Scroll from '@/base/scroll/scroll'
+import Playlist from './playlist/playlist'
 import { playMode } from 'common/js/config'
 import { shuffle, padding } from 'common/js/util'
 import { getLyric, getJayLyric } from '@/api/song'
@@ -244,6 +246,9 @@ export default {
       }
       this.resetCurrentIndex(list)
       this.setPlaylist(list)
+    },
+    showPlaylist () {
+      this.$refs.playlist.show()
     },
     resetCurrentIndex (list) {
       let index = list.findIndex((item) => {
@@ -465,7 +470,8 @@ export default {
   components: {
     ProgressBar,
     ProgressCircle,
-    Scroll
+    Scroll,
+    Playlist
   }
 }
 </script>
