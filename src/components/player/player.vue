@@ -56,7 +56,7 @@
           <div class="progress-bar-wrapper">
             <progress-bar :percent="percent" @percentChange="onProgressBarChange"></progress-bar>
           </div>
-          <span class="time time-r">{{format(currentSong.duration)}}</span>
+          <span class="time time-r">{{format(songDuration)}}</span>
         </div>
         <div class="operators">
           <div class="icon i-left" @click="changeMode">
@@ -103,7 +103,7 @@
 </template>
 
 <script type="text/ecmascript-6">
-import { mapGetters, mapMutations } from 'vuex'
+import { mapGetters, mapMutations, mapActions } from 'vuex'
 import animations from 'create-keyframe-animation'
 import { prefixStyle } from 'common/js/dom'
 import ProgressBar from '@/base/progress-bar/progress-bar'
@@ -115,6 +115,7 @@ import { shuffle, padding } from 'common/js/util'
 import { getLyric, getJayLyric } from '@/api/song'
 import { Base64 } from 'js-base64'
 import Lyric from 'common/js/lyric'
+import { JAY, getJaySongDetail } from '@/api/jay'
 
 const transform = prefixStyle('transform')
 const transitionDuration = prefixStyle('transitionDuration')
@@ -130,10 +131,14 @@ export default {
       currentLyric: null,
       currentLineNum: 0,
       curMidComp: 'cd',
-      playingLyric: ''
+      playingLyric: '',
+      songDuration: 0
     }
   },
   methods: {
+    playInterceptor (song) {
+      this._getSongDuration(song)
+    },
     back () {
       this.setFullscreen(false)
     },
@@ -165,6 +170,14 @@ export default {
         return
       }
       let num = this.playlist.length
+      if (num === 1) {
+        this.$refs.audio.currentTime = 0
+        this.$refs.audio.play()
+        if (this.currentLyric) {
+          this.currentLyric.seek(0)
+        }
+        return
+      }
       this.setCurrentIndex((this.currentIndex + 1) % num)
       if (!this.playing) {
         this.switchPlay()
@@ -173,6 +186,7 @@ export default {
     },
     ready () {
       this.songReady = true
+      this.savePlayHistory(this.currentSong)
     },
     error () {
       this.songReady = true
@@ -329,6 +343,23 @@ export default {
         this.touch.initiated = false
       }, 20)
     },
+    _getSongDuration (song) {
+      if (song.singer === JAY.name) {
+        getJaySongDetail(song.mid).then((res) => {
+          if (res.items && res.items.length > 0) {
+            const item = res.items[0]
+            const interval = item.length.split(':')
+            let duration = 0
+            for (let i = 0; i < interval.length; i++) {
+              duration += parseInt(interval[i]) + duration * 60
+            }
+            this.songDuration = duration
+          }
+        })
+      } else {
+        this.songDuration = song.duration
+      }
+    },
     _getLyric () {
       if (this.currentSong.url.indexOf('migu') !== -1) {
         getJayLyric(this.currentSong.mid).then((res) => {
@@ -404,7 +435,10 @@ export default {
       setCurrentIndex: 'SET_CURRENT_INDEX',
       setMode: 'SET_MODE',
       setPlaylist: 'SET_PLAYLIST'
-    })
+    }),
+    ...mapActions([
+      'savePlayHistory'
+    ])
   },
   computed: {
     playCls () {
@@ -441,9 +475,10 @@ export default {
   },
   watch: {
     currentSong (newSong, oldSong) {
-      if (newSong.id === oldSong.id) {
+      if (!newSong.id || newSong.id === oldSong.id) {
         return
       }
+      this.playInterceptor(newSong)
       if (this.currentLyric) {
         this.currentLyric.stop()
         this.currentLineNum = 0

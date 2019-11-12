@@ -6,13 +6,13 @@
         <h1 class="title">
           <i class="icon" :class="iconMode" @click="changeMode"></i>
           <span class="text">{{modeText}}</span>
-          <span class="clear"><i class="icon-clear"></i></span>
+          <span class="clear" @click="showConfirm"><i class="icon-clear"></i></span>
         </h1>
       </div>
-      <div class="list-content">
+      <div class="list-content" ref="listContent">
         <transition-group name="list" tag="ul">
           <li class="item" v-for="(item, index) in sequenceList" :key="item.id" @click="selectItem(item, index)">
-            <i class="current"></i>
+            <i class="current" :class="getCurrentIcon(index)"></i>
             <span class="text">{{item.name}}</span>
             <span class="like">
               <i></i>
@@ -24,7 +24,7 @@
         </transition-group>
       </div>
       <div class="list-operate">
-        <div class="add">
+        <div class="add" @click="addSong(true)">
           <i class="icon-add"></i>
           <span class="text">添加歌曲到队列</span>
         </div>
@@ -33,6 +33,8 @@
         <span>Close</span>
       </div>
     </div>
+    <confirm ref="confirm" text="是否清空播放列表" @confirm="confirmClear"></confirm>
+    <add-song v-if="showAddSong" @hide="addSong"></add-song>
   </div>
 </transition>
 </template>
@@ -40,17 +42,29 @@
 <script type="text/ecmascript-6">
 import { playerMixin } from 'common/js/mixin'
 import {playMode} from 'common/js/config'
+import { mapActions } from 'vuex'
+import Confirm from '@/base/confirm/confirm'
+import AddSong from '@/components/player/add-song/add-song'
+const ITEM_HEIGHT = 40
 export default {
   name: 'Playlist',
   mixins: [playerMixin],
   data () {
     return {
-      showFlag: false
+      showFlag: false,
+      showAddSong: false
     }
+  },
+  components: {
+    Confirm,
+    AddSong
   },
   methods: {
     show () {
       this.showFlag = true
+      setTimeout(() => {
+        this._scrollToCurrentSong(this.currentIndex)
+      }, 100)
     },
     hide () {
       this.showFlag = false
@@ -63,12 +77,40 @@ export default {
       }
       this.setCurrentIndex(index)
       this.setPlayingState(true)
+      this.hide()
     },
-    deleteItem (item) {}
+    deleteItem (item) {
+      this.deleteSong(item)
+      if (!this.playlist.length) {
+        this.hide()
+      }
+    },
+    confirmClear () {
+      this.deleteSongList()
+      this.hide()
+    },
+    showConfirm () {
+      this.$refs.confirm.show()
+    },
+    addSong (state) {
+      this.showAddSong = state
+    },
+    getCurrentIcon (index) {
+      return index === this.currentIndex ? 'icon-play' : ''
+    },
+    _scrollToCurrentSong (index) {
+      this.$refs.listContent.scrollTop = ITEM_HEIGHT * index
+    },
+    ...mapActions([
+      'deleteSong',
+      'deleteSongList'
+    ])
   },
   computed: {
     modeText () {
-      return this.mode === playMode.sequence ? '顺序播放' : this.mode === playMode.loop ? '循环播放' : '随机播放'
+      let songInfo = `(${this.currentIndex + 1} / ${this.playlist.length}首)`
+      let play = this.mode === playMode.sequence ? `顺序播放` : this.mode === playMode.loop ? `循环播放` : `随机播放`
+      return play + songInfo
     }
   }
 }
@@ -127,7 +169,6 @@ export default {
           align-items: center
           height: 40px
           padding: 0 30px 0 20px
-          overflow: hidden
           &.list-enter-active, &.list-leave-active
             transition: all .3s
           &.list-enter, &.list-leave-to

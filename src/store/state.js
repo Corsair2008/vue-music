@@ -1,5 +1,5 @@
 import { playMode } from 'common/js/config'
-import { loadSearch } from 'common/js/cache'
+import { loadSearch, loadPlay } from 'common/js/cache'
 
 const state = {
   fullscreen: false,
@@ -8,7 +8,8 @@ const state = {
   sequenceList: [],
   mode: playMode.sequence,
   currentIndex: -1,
-  searchHistory: loadSearch()
+  searchHistory: loadSearch(),
+  playHistory: loadPlay()
 }
 
 export default state

@@ -87,10 +87,18 @@ export const searchMixin = {
     saveQuery () {
       this.saveSearchHistory(this.query)
     },
+    selectQuery (query) {
+      this.$refs.searchBox.setQuery(query)
+    },
     ...mapActions([
       'saveSearchHistory',
       'deleteSearchHistory',
       'clearSearchHistory'
+    ])
+  },
+  computed: {
+    ...mapGetters([
+      'searchHistory'
     ])
   }
 }
@@ -104,7 +112,8 @@ export const playerMixin = {
       'sequenceList',
       'playlist',
       'currentSong',
-      'mode'
+      'mode',
+      'currentIndex'
     ])
   },
   methods: {

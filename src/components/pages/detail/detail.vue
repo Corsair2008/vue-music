@@ -57,14 +57,14 @@ export default {
           })
           break
         case detailType.toplist:
-          normalizeToplist(id).then((res) => {
+          normalizeToplist(parseInt(id)).then((res) => {
             this.title = res.title
             this.bgImage = res.bgImage
             this.songList = res.songlist
           })
           break
         case detailType.disc:
-          normalizeDisclist(id).then((res) => {
+          normalizeDisclist(parseInt(id)).then((res) => {
             this.title = res.dissname
             this.bgImage = res.bgImage
             this.songList = res.songlist

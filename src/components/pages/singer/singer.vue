@@ -44,21 +44,21 @@ export default {
         items: []
       }]
       getHotSingers().then((res) => {
+        let singers = []
         res.forEach((item, index) => {
           if (index < HOT_SINGER_LEN) {
             hot[0].items.push(new Singer(item.singer_mid, item.singer_name))
-            let singers = []
-            getSingerList(1).then((res) => {
+          }
+        })
+        getSingerList(1).then((res) => {
+          if (res.code === ERR_OK) {
+            singers = res.data.list
+            getSingerList(2).then((res) => {
               if (res.code === ERR_OK) {
-                singers = res.data.list
-                getSingerList(2).then((res) => {
-                  if (res.code === ERR_OK) {
-                    return singers.concat(res.data.list)
-                  }
-                }).then((res) => {
-                  this.singers = this._normalizeSinger(res, hot)
-                })
+                return singers.concat(res.data.list)
               }
+            }).then((res) => {
+              this.singers = this._normalizeSinger(res, hot)
             })
           }
         })

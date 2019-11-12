@@ -31,6 +31,10 @@ export default {
     query: {
       type: String,
       default: ''
+    },
+    hasSinger: {
+      type: Boolean,
+      default: true
     }
   },
   data () {
@@ -43,7 +47,7 @@ export default {
     search (query, page) {
       getSuggest(query, page).then((res) => {
         let ret = this.suggestList
-        if (res.zhida.singername && page === 1) {
+        if (this.hasSinger && res.zhida.singermid && page === 1) {
           ret.push({...res.zhida, ...{type: TYPE_SINGER}})
         }
         if (res.song && res.song.list && res.song.list.length > 0) {

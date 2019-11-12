@@ -50,7 +50,6 @@ export default {
   },
   data () {
     return {
-      scrollY: -1,
       currentIndex: 0,
       diff: -1
     }
@@ -78,8 +77,24 @@ export default {
     }
   },
   methods: {
-    handleScroll (scrollTop) {
-      this.scrollY = scrollTop
+    handleScroll (newY) {
+      if (newY <= FIXED_TOP) {
+        this.currentIndex = 0
+        this.$refs.fixed.style.display = 'none'
+        return
+      }
+      this.$refs.fixed.style.display = ''
+      const listHeight = this.listHeight
+      for (let i = 0; i < listHeight.length; i++) {
+        let heightT = listHeight[i]
+        let heightB = listHeight[i + 1]
+        if (newY >= heightT && newY < heightB) {
+          this.currentIndex = i
+          this.diff = heightB - newY
+          return
+        }
+      }
+      this.currentIndex = listHeight.length - 2
     },
     selectItem (item) {
       this.$emit('select', item)
@@ -133,23 +148,6 @@ export default {
       setTimeout(() => {
         this._calculateHeight()
       }, 20)
-    },
-    scrollY (newY) {
-      if (newY <= FIXED_TOP) {
-        this.currentIndex = 0
-        return
-      }
-      const listHeight = this.listHeight
-      for (let i = 0; i < listHeight.length; i++) {
-        let heightT = listHeight[i]
-        let heightB = listHeight[i + 1]
-        if (newY >= heightT && newY < heightB) {
-          this.currentIndex = i
-          this.diff = heightB - newY
-          return
-        }
-      }
-      this.currentIndex = listHeight.length - 2
     },
     diff (newVal) {
       let fixedTop = (newVal > 0 && newVal < TITLE_HEIGHT) ? newVal - TITLE_HEIGHT : 0

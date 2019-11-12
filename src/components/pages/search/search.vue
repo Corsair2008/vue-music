@@ -34,10 +34,9 @@
 import SearchBox from '@/base/search-box/search-box'
 import SearchList from '@/base/search-list/search-list'
 import Confirm from '@/base/confirm/confirm'
-import Suggest from 'search/suggest/suggest'
+import Suggest from '@/base/suggest/suggest'
 import { getHotkey } from '@/api/search'
 import { searchMixin } from 'common/js/mixin'
-import { mapGetters } from 'vuex'
 export default {
   name: 'Search',
   mixins: [searchMixin],
@@ -48,9 +47,6 @@ export default {
     }
   },
   methods: {
-    selectQuery (query) {
-      this.$refs.searchBox.setQuery(query)
-    },
     handleScroll (scrollTop) {
       this.$refs.searchBox.blur()
     },
@@ -62,11 +58,6 @@ export default {
         this.hotkey = res.vec_hotkey
       })
     }
-  },
-  computed: {
-    ...mapGetters([
-      'searchHistory'
-    ])
   },
   created () {
     this._getHotkey()
