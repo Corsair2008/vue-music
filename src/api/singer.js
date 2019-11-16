@@ -1,9 +1,9 @@
 import jsonp from 'common/js/jsonp'
 import axios from 'axios'
 import { commonParams, opt, ERR_OK } from './config'
-import { createSong, createJaySong } from 'common/js/song'
+import { createSong, createMiguSong } from 'common/js/song'
 import { getSongUrl } from '@/api/song'
-import { getJaySonglist, JAY } from '@/api/jay'
+import { getMiguSonglist } from '@/api/migu'
 import { axiosRequest } from 'common/js/axiosRequest'
 
 export function getSingerList (page) {
@@ -96,37 +96,38 @@ export function getSingerDetail (singermid) {
   })
 }
 
-export function normalizeSonglist (id, page) {
-  if (id === JAY.qqId) {
-    return getJaySonglist(JAY.name, page).then((res) => {
-      let ret = []
-      let songlist = res.musics
-      songlist.forEach((song) => {
-        ret.push(createJaySong(song))
-      })
-      return Promise.resolve(ret)
+export function normalizeSonglist (name, id, page) {
+  return getSongList(id, page).then((res) => {
+    let mids = []
+    let originSongList = res.songList
+    originSongList.forEach((song) => {
+      let mid = song.songInfo.mid
+      mids.push(mid)
     })
-  } else {
-    return getSongList(id, page).then((res) => {
-      let mids = []
-      let originSongList = res.songList
-      originSongList.forEach((song) => {
-        let mid = song.songInfo.mid
-        mids.push(mid)
-      })
-      return Promise.resolve({ mids, originSongList })
-    }).then(({ mids, originSongList }) => {
+    return Promise.resolve({ mids, originSongList }).then(({ mids, originSongList }) => {
       return getSongUrl(mids).then((urls) => {
         let ret = []
+        let validSong = 0
         for (let i = 0; i < originSongList.length; i++) {
           let url = urls[i]
           if (url && url.purl) {
+            validSong++
             let songUrl = `http://ws.stream.qqmusic.qq.com/${url.purl}`
             ret.push(createSong(originSongList[i].songInfo, songUrl))
           }
         }
-        return Promise.resolve(ret)
+        if (validSong < 12) {
+          return getMiguSonglist(name, page).then((res) => {
+            let songlist = res.musics
+            songlist.forEach((song) => {
+              ret.push(createMiguSong(song))
+            })
+            return Promise.resolve(ret)
+          })
+        } else {
+          return Promise.resolve(ret)
+        }
       })
     })
-  }
+  })
 }

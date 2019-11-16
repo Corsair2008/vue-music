@@ -25,9 +25,9 @@ export default {
   },
   methods: {
     handleScrollToEnd () {
-      const { type, id } = this.$route.query
+      const { name, type, id } = this.$route.query
       if (parseInt(type) === detailType.singer) {
-        normalizeSonglist(id, this.page++).then((res) => {
+        normalizeSonglist(name, id, this.page++).then((res) => {
           let ret = this.songList
           this.title = this.singer.name
           this.bgImage = this.singer.avatar
@@ -36,21 +36,21 @@ export default {
       }
     },
     _query () {
-      const {type, id} = this.$route.query
+      const {name, type, id} = this.$route.query
       if (!type || !id) {
         this.$router.push('/recommend')
         return
       }
-      this._getSongList(type, id)
+      this._getSongList(name, type, id)
     },
-    _getSongList (type, id) {
+    _getSongList (name, type, id) {
       if (typeof type === 'string') {
         type = parseInt(type)
       }
       switch (type) {
         case detailType.singer:
           this._getSingerDetail(id)
-          normalizeSonglist(id, this.page++).then((res) => {
+          normalizeSonglist(name, id, this.page++).then((res) => {
             this.title = this.singer.name
             this.bgImage = this.singer.avatar
             this.songList = res

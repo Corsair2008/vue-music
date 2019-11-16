@@ -37,7 +37,7 @@ export function createDiscSong (discSong, songUrl) {
   })
 }
 
-export function createJaySong (song) {
+export function createMiguSong (song) {
   return new Song({
     id: song.id,
     mid: song.copyrightId,

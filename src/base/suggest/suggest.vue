@@ -62,6 +62,7 @@ export default {
         this.$router.push({
           path: '/detail',
           query: {
+            name: item.singername,
             id: item.singermid || item.albummid,
             type: detailType.singer
           }

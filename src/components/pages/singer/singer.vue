@@ -33,6 +33,7 @@ export default {
       this.$router.push({
         path: '/detail',
         query: {
+          name: singer.name,
           type: detailType.singer,
           id: singer.id
         }

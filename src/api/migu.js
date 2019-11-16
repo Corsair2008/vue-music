@@ -1,12 +1,7 @@
 /* for JAY */
 import axios from 'axios'
 
-export const JAY = {
-  qqId: '0025NhlN2yWrP4',
-  name: '周杰伦'
-}
-
-export function getJaySongDetail (id) {
+export function getMiguSongDetail (id) {
   const url = '/miguWeb/songs'
   const params = {
     type: 1,
@@ -23,7 +18,7 @@ export function getJaySongDetail (id) {
   })
 }
 
-export function getJaySonglist (singer, page) {
+export function getMiguSonglist (singer, page) {
   const url = '/miguMobile/songs'
   const params = {
     rows: 20,

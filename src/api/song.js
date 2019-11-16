@@ -27,7 +27,7 @@ export function getSongUrl (mids) {
   })
 }
 
-export function getJayLyric (id) {
+export function getMiguLyric (id) {
   const url = '/miguWeb/lyric'
   const params = {
     copyrightId: id
