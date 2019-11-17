@@ -30,6 +30,12 @@ export const handleScrollMixin = {
     handleScrollToEnd () {
       // implement by client
     },
+    scrollLogic (newVal) {
+      this.handleScroll(newVal)
+      if (newVal !== 0) {
+        this._scrollToEnd()
+      }
+    },
     getScrollTop () {
       if (this.scrollTopTimer) {
         clearTimeout(this.scrollTopTimer)
@@ -65,8 +71,7 @@ export const handleScrollMixin = {
   },
   watch: {
     scrollTop (newVal) {
-      this.handleScroll(newVal)
-      this._scrollToEnd()
+      this.scrollLogic(newVal)
     },
     scrollHeight () {
       this.scrollToEnd = false

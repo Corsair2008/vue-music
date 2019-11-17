@@ -119,9 +119,11 @@ export function normalizeSonglist (name, id, page) {
         if (validSong < 12) {
           return getMiguSonglist(name, page).then((res) => {
             let songlist = res.musics
-            songlist.forEach((song) => {
-              ret.push(createMiguSong(song))
-            })
+            if (songlist && songlist.length) {
+              songlist.forEach((song) => {
+                ret.push(createMiguSong(song))
+              })
+            }
             return Promise.resolve(ret)
           })
         } else {

@@ -23,7 +23,7 @@ export function getMiguSonglist (singer, page) {
   const params = {
     rows: 20,
     type: 2,
-    keyword: encodeURIComponent(singer),
+    keyword: singer,
     pgc: page || 1
   }
   return axios.get(url, {
