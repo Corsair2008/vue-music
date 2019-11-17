@@ -121,7 +121,9 @@ export function normalizeSonglist (name, id, page) {
             let songlist = res.musics
             if (songlist && songlist.length) {
               songlist.forEach((song) => {
-                ret.push(createMiguSong(song))
+                if (song.singerName.indexOf(name) !== -1) {
+                  ret.push(createMiguSong(song))
+                }
               })
             }
             return Promise.resolve(ret)

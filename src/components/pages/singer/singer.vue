@@ -11,6 +11,7 @@ import { ERR_OK } from '@/api/config'
 import Singer from 'common/js/singer'
 import Listview from '@/base/listview/listview'
 import { detailType } from 'common/js/config'
+import { rmBrakets } from 'common/js/util'
 
 const HOT_SINGER = '热门'
 const HOT_SINGER_LEN = 30
@@ -33,7 +34,7 @@ export default {
       this.$router.push({
         path: '/detail',
         query: {
-          name: singer.name,
+          name: rmBrakets(singer.name),
           type: detailType.singer,
           id: singer.id
         }

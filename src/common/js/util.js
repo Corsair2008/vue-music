@@ -34,3 +34,8 @@ export function debounce (func, delay) {
     }, delay)
   }
 }
+
+export function rmBrakets (key) {
+  var reg = /\(.*\)/
+  return key.replace(reg, '').trim()
+}

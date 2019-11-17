@@ -487,6 +487,7 @@ export default {
         this.currentTime = 0
         this.currentLyric = null
         this.songReady = false
+        this.playingLyric = null
       }
       this._getLyric()
       clearTimeout(this.songPlayTimer)

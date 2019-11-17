@@ -20,9 +20,11 @@
 import { getSuggest } from '@/api/search'
 import { detailType } from 'common/js/config'
 import { getSongUrl } from '@/api/song'
-import { createDiscSong } from 'common/js/song'
+import { createDiscSong, createMiguSong } from 'common/js/song'
 import { handleScrollMixin } from 'common/js/mixin'
 import { mapActions } from 'vuex'
+import { getMiguSonglist } from '@/api/migu'
+import { rmBrakets } from 'common/js/util'
 const TYPE_SINGER = 'singer'
 export default {
   name: 'Suggest',
@@ -56,13 +58,23 @@ export default {
           })
         }
       })
+      getMiguSonglist(query, page).then((res) => {
+        let miguSongs = []
+        let songlist = res.musics
+        if (songlist && songlist.length) {
+          songlist.forEach((song) => {
+            miguSongs.push(createMiguSong(song))
+          })
+          this.suggestList = this.suggestList.concat(miguSongs)
+        }
+      })
     },
     selectItem (item) {
       if (item.type === TYPE_SINGER) {
         this.$router.push({
           path: '/detail',
           query: {
-            name: item.singername,
+            name: rmBrakets(item.singername),
             id: item.singermid || item.albummid,
             type: detailType.singer
           }
